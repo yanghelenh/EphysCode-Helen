@@ -12,7 +12,7 @@
 %   settings - struct of settings
 %
 % Created: 11/3/19
-% Updated: 11/3/19 - HHY
+% Updated: 1/21/20 - HHY
 %
 
 function [dataDir, exptFnDir, settings] = ephysSettings()
@@ -51,9 +51,9 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
 
     % Sampling Rate
     settings.bob.sampRate  = 20e3; % 20 kHz, same as Yvette
-    % Sampling rate for measuring access resistance
-    % NI 6361 DAQ max for 6 ephys channels 166 kHz (1MS/s)
-    settings.bob.sampRateRacc = 10e4; % 100 kHz 
+%     % Sampling rate for measuring access resistance
+%     % NI 6361 DAQ max for 6 ephys channels 166 kHz (1MS/s)
+%     settings.bob.sampRateRacc = 10e4; % 100 kHz 
     
 
     % Break out box, channel assignments
@@ -70,8 +70,8 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     % to decode which column in raw data output from data acquisition
     %  corresponds to what information; ordered by order channels will be added
     %  to DAQ session; add analog before digital
-    settings.bob.aInChAssign = {'ampScaledOut', 'sigCondI', ...
-        'sigCond10Vm', 'ampGain', 'ampFreq', 'ampMode', ...
+    settings.bob.aInChAssign = {'ampScaledOut', 'ampI', ...
+        'amp10Vm', 'ampGain', 'ampFreq', 'ampMode', ...
         'ficTracHeading', 'ficTracIntX', 'ficTracIntY'};
     settings.bob.dInChAssign = {'ficTracCamFrames', ...
         'scanimageFrameClock', 'legCamFrames'};
@@ -115,16 +115,16 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.amp.beta = 1; % beta value for Axopatch 200B, whole cell
     
     % Current (beta mV/pA)
-    settings.I.sigCondGain = 10; % TO DO: FIND BEST VALUE FOR THIS
-    settings.I.sigCondFreq = 5; % LP filter, in kHz, TO DO
+    settings.I.sigCondGain = 1; % signal conditioner not currently in use
+    settings.I.sigCondFreq = nan; % LP filter, in kHz, sig cond not in use
     settings.I.ampGain = 1; % has option in back for this to be 100
     % conversion from V reading from DAQ to pA measured
     settings.I.softGain = MV_PER_V / (settings.I.sigCondGain * ...
         settings.amp.beta * settings.I.ampGain);
     
     % Voltage (10 Vm)
-    settings.Vm.sigCondGain = 1; % TO DO
-    settings.Vm.sigCondFreq = 5; % LP filter, in kHz, TO DO
+    settings.Vm.sigCondGain = 1; % signal conditioner not currently in use
+    settings.Vm.sigCondFreq = nan; % LP filter, in kHz, sig cond not in use
     settings.Vm.ampGain = 10; % amp gain
     % conversion from V reading from DAQ to mV measured
     settings.Vm.softGain = MV_PER_V / (settings.Vm.sigCondGain * ...
@@ -138,5 +138,11 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.VOut.ampICmdGain = 2000 / settings.amp.beta; % 2000/beta pA/V
     settings.VOut.IConvFactor = 1 / (settings.VOut.ampICmdGain * ...
         settings.VOut.vDivGain);
+    
+    
+    % Some static parameters for testing pipette/seal/access resistances
+    % duration of recording for pipette/seal resistances measurements in
+    %  pre-expt routine
+    settings.sealTestDur = 2; % in sec
     
 end

@@ -6,7 +6,7 @@
 %  experiment-specific output streams.
 %
 % INPUT:
-%   settings - struct from twoPhotonSettings() containing all DAQ settings
+%   settings - struct from ephysSettings() containing all DAQ settings
 %   aIn - cell array of which analog input channels are actually used
 %   aOut - cell arry of which analog output channels are actually used
 %   dIn - cell array of which digital input channels are actually used

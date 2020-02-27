@@ -15,7 +15,7 @@
 % USE: runEphysExpt()
 %
 % Created: 11/3/19
-% Updated: 11/3/19 - HHY
+% Updated: 11/4/19 - HHY
 %
 
 function runEphysExpt()
@@ -99,7 +99,37 @@ function runEphysExpt()
         cd(cellDirName);
         cellDirPath = pwd;
         
+        % generate basic experimental info struct
+        exptInfo.dateDir = dateDirName;
+        exptInfo.flyDir = flyDirName;
+        exptInfo.cellDir = cellDirName;
+        exptInfo.exptDate = datestr(now, 'yymmdd');
+        exptInfo.exptStartTime = datestr(now, 'HH:MM:SS');
+        
+        % Save settings, fly metadata, experimental info to file
+        save('metaDat.mat', 'flyData', 'settings', 'exptInfo', '-v7.3');
+        
         % **ASKS TO RUN PRE-EXPT ROUTINES**
+        while 1
+            runPERout = input('\n\nRun pre-experimental routines? (y/n): ', 's');
+            if strcmpi(runPERout, 'y')
+                preExptData = preExptRoutine(settings);
+                
+                % asks about running pre-experimental routine again (e.g.
+                %  fail to patch cell, try again, at stage past measuring
+                %  pipette resistance)
+                runPERagain = input(...
+                    '\n\nRun pre-experimental routines again? (y/n): ', ...
+                    's');
+                if ~strcmpi(runPERagain, 'y')
+                    break;
+                end
+                
+            else
+                disp('Pre-experimental routine was not run.');
+                break;
+            end
+        end
  
     % NOT A NEW CELL    
     elseif (strcmpi(newCell, 'n'))
@@ -125,6 +155,8 @@ function runEphysExpt()
     end
     
     
+    
+    % *** code from run2PExpt ***
     
             % loop through trials
         flyDone = 'n'; % boolean for whether fly is complete
