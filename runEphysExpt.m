@@ -22,6 +22,9 @@ function runEphysExpt()
     % clean up
     close all
     
+    % initialize persistent variables
+    persistent cellDirPath
+    
     % load constant settings
     [dataDir, exptFnDir, settings] = ephysSettings();
     
@@ -117,11 +120,12 @@ function runEphysExpt()
                 
                 % asks about running pre-experimental routine again (e.g.
                 %  fail to patch cell, try again, at stage past measuring
-                %  pipette resistance)
+                %  pipette resistance, but trying for same cell)
                 runPERagain = input(...
                     '\n\nRun pre-experimental routines again? (y/n): ', ...
                     's');
                 if ~strcmpi(runPERagain, 'y')
+                    disp('Did not run pre-experimental routines again.');
                     break;
                 end
                 
@@ -133,20 +137,64 @@ function runEphysExpt()
  
     % NOT A NEW CELL    
     elseif (strcmpi(newCell, 'n'))
-        % prompt for cell folder
-        disp('Select cell folder');
-        cellDirPath = uigetdir(dataDir, 'Select cell folder');
-        % get cell directory name, fly directory path
-        [flyDirPath, cellDirName, ~] = fileparts(cellDirPath); 
-        % get fly directory name, date path
-        [dateDirPath, flyDirName, ~] = fileparts(flyDirPath);
-        % get date directory name
-        [~, dateDirName, ~] = fileparts(dateDirPath);
+        cd(cellDirPath) % make sure we're in the cell directory
         
-        % go to cell directory
-        cd(cellDirPath);
+        % **CONTINUES WITH NEXT TRIAL**        
+        % prompt user to select an experiment
+        exptSelected = 0;
+        disp('Select an experiment');
+        while ~exptSelected
+            exptTypeFileName = uigetfile('*.m', 'Select an experiment',...
+                exptFnDir);
+            % if user cancels or selects valid file
+            if (exptTypeFileName == 0)
+                disp('Selection cancelled');
+                exptSelected = 1; % end loop
+            elseif (contains(exptTypeFileName, '.m'))
+                disp(['Experiment: ' exptTypeFileName]);
+                exptSelected = 1; % end loop
+            else
+                disp('Select an experimental .m file or cancel');
+                exptSelected = 0;
+            end
+        end
         
-        % **CONTINUES WITH NEXT TRIAL**
+        % if user cancels at this point 
+        if (exptTypeFileName == 0)
+            disp('No experiment was run. Ending runEphysExpt()');
+            % ends run of this function
+            return;
+        end
+        
+        % prompt user for experiment duration
+        exptDuration = input(...
+            'Experiment duration in seconds. Enter 0 to end trial: ');
+        % to end trial at this stage
+        if (exptDuration == 0)
+            disp('No experiment was run. Ending runEphysExpt()');
+            % ends run of this function
+            return;
+        end
+        
+        % run experiment
+        % convert selected experiment file into function handle
+        % get name without .m
+        exptTypeName = extractBefore(exptTypeFileName, '.');
+        exptFn = str2func(exptTypeName);
+
+        % display this experiment's path
+        disp(pwd);
+
+        % run actual experiment code
+        try
+            [rawData, inputParams, rawOutput] = exptFn(...
+                settings, exptDuration); 
+        catch
+            disp('Invalid Experimental Function. Ending runEphysExpt()');
+            % ends run of epxeriment
+            return;
+        end
+        
     
     % INVALID INPUT, DON'T DO ANYTHING
     else

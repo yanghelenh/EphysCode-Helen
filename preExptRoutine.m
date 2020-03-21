@@ -18,6 +18,8 @@
 %
 % CREATED: 11/4/19
 % UPDATED: 11/4/19 - HHY
+%   2/27/20 - HHY
+%   3/11/20 - HHY
 %
 
 function preExptData = preExptRoutine(settings)
@@ -145,6 +147,8 @@ function preExptData = preExptRoutine(settings)
         % create an empty struct as a place holder
         preExptData = struct;
     end
+    
+    cd .. % go back to previous folder, not preExptFolder
 end
 
 %% Helper Functions
