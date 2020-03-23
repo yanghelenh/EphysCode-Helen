@@ -160,7 +160,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     legCamTrig(1:legCamFrameRateScans:end) = 1;
     
     % generate leg camera trigger pattern of all zeros (for end)
-    legCamTrigEnd = zeros(legQueuedScans, 1);
+    legCamTrigEnd = zeros(legTrigQueuedScans, 1);
     
     % nested function for queuing more leg camera trigger outputs; called
     %  by event listener for DataRequired
