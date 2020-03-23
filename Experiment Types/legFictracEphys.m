@@ -155,7 +155,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     whichOutScan = whichOutScan + lengthOut;
     
     % generate leg camera trigger pattern (to be queued after intial set)
-    legCamTrig = zeros(legQueuedScans, 1);
+    legCamTrig = zeros(legTrigQueuedScans, 1);
     % trigger pattern for leg camera
     legCamTrig(1:legCamFrameRateScans:end) = 1;
     
