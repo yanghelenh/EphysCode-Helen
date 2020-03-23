@@ -19,6 +19,7 @@
 % UPDATED: 
 %   11/4/19 - HHY
 %   2/26/20 - HHY
+%   3/23/20 - HHY
 %
 
 function [rawData, inputParams, rawOutput] = ephysRecording(settings, ...
@@ -50,6 +51,7 @@ function [rawData, inputParams, rawOutput] = ephysRecording(settings, ...
     % get time stamp of approximate experiment start
     inputParams.startTimeStamp = datestr(now, 'HH:MM:SS');
     
+    disp('Acquiring ephys recording');
     % acquire data (in foreground)
     rawData = userDAQ.startForeground();
 

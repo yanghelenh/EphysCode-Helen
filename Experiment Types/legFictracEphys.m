@@ -130,7 +130,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
         inputParams.legTrigQueuedBelow;
     
     % save initial experiment duration here into inputParams
-    inputParams.initialExptDuration = exptDuration; 
+    inputParams.initialExptDuration = duration; 
 
     
     % QUEUE INITIAL OUTPUT - leg camera frame triggers
