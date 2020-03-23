@@ -48,6 +48,9 @@ function [rawData, inputParams, rawOutput] = ephysRecording(settings, ...
         inputParams.aInCh, inputParams.aOutCh, inputParams.dInCh, ...
         inputParams.dOutCh);
     
+    % set duration of acquisition
+    userDAQ.DurationInSeconds = duration;
+    
     % get time stamp of approximate experiment start
     inputParams.startTimeStamp = datestr(now, 'HH:MM:SS');
     
