@@ -11,7 +11,7 @@
 
 function clearForNewCell()
 
-    clear runEphysExpt % has persistent variable cellDirPath
+    clear runEphysExpt % has persistent variables cellDirPath, trialNum
     clear collectData % has persistent variable whichInScan
     % restart binary for whether leg vid has been intialized
     clear global firstLegVidTrial   

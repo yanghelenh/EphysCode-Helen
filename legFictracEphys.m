@@ -252,8 +252,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     
     % display number of leg video frames triggered 
     numLegVidTrigs = sum(daqOutput);
-    fprintf('%d leg video frames triggered. Compare with number camera has acquired',...
-        numLegVidTrigs);
+    fprintf('%d leg video frames triggered.\n', numLegVidTrigs);
     
     % save global variables into variables returned by this function
     rawData = daqData;
