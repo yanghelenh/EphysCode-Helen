@@ -79,7 +79,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     % maximum number of scans in acquisition, with 5 second buffer
     maxNumScans = round((duration + 5) * userDAQ.Rate);
     % number of channels data is being acquired on
-    numInCh = length(inputParams.aInCh) + length(inputParams.dOutCh);
+    numInCh = length(inputParams.aInCh) + length(inputParams.dInCh);
     % pre-allocate global variable for data acquired
     daqData = zeros(maxNumScans, numInCh);
     % number of channels data is being output on
