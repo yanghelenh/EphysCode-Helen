@@ -22,7 +22,7 @@
 %
 % UPDATED:
 %   3/11/20 - HHY
-%   3/20/20 - HHY
+%   3/23/20 - HHY
 %
 
 function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
@@ -30,6 +30,18 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
 
     % Initialize global variable for raw data collection
     global daqData
+    % Initialize global variable for knowing when to prompt for
+    %  starting acquisition on leg camera (i.e. only first time leg video
+    %  is acquired for cell)
+    global firstLegVidTrial
+    
+    % first time leg video is acquired is when this variable is first
+    %  initiated
+    if isempty(firstLegVidTrial)
+        firstLegVidTrial = 1; % yes, this is first trial
+    else
+        firstLegVidTrial = 0; % no, this is not first trial
+    end
     
     % binary variable for whether DAQ should be stopped; used in nested
     %  function queueLegTrig()
@@ -40,7 +52,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     whichOutScan = 1; % start at 1
 
     % EXPERIMENT-SPECIFIC PARAMETERS
-    exptCond = 'legFictracEphys'; % name of trial type
+    inputParams.exptCond = 'legFictracEphys'; % name of trial type
     % leg tracking camera frame rate - make sure it's a whole number of
     %  DAQ scans
     legCamFrameRate = 250; % in Hz
@@ -175,9 +187,31 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     % create listeners for DataAvailable and DataRequired events
     dataAvailLh = addlistener(userDAQ, 'DataAvailable', @collectData);
     dataReqLh = addlistener(userDAQ, 'DataRequired', @queueLegTrig);
+    
+    % first time leg video is acquired for cell
+    %  set up folder for saving leg video, prompt to set up camera
+    %  appropriately
+    if firstLegVidTrial 
+        % make folder for raw images
+        mkdir('rawLegVid');
+        % raw leg video full path
+        legVidFileName = sprintf('%s%srawLegVid%slegVid', pwd, filesep, ... 
+            filesep);
+        % copy path to clipboard
+        clipboard('copy', legVidFileName);
+        % prompt user to copy path into spinview
+        prompt = ['Leg Video Acquisition. \n'...
+            'Press RECORD button and paste directory from system clipboard '...
+            'into the *Filename* section. \n Set *Image Format* to Tiff ' ... 
+            'and *Compression Method* to Rle. Then press Start Recording.' ...
+            '\n Make sure camera is acquiring (green play button). \n' ...
+            'Press Enter when done with these steps.'];
+        input(prompt, 's');
+    end
 
     % get time stamp of approximate experiment start
     inputParams.startTimeStamp = datestr(now, 'HH:MM:SS');
+    fprintf('Start time: %s \n', inputParams.startTimeStamp);
     
     % ACQUIRE IN BACKGROUND
     
@@ -207,6 +241,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     % once looping stops, stop acquisition
     userDAQ.stop();
     disp('Acquisition stopped');
+    fprintf('End time: %s \n', datestr(now, 'HH:MM:SS'));
     
     % save actual experiment duration into inputParams
     inputParams.actualExptDuration = userDAQ.ScansAcquired * userDAQ.Rate;
@@ -214,6 +249,11 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     % only keep data and output up until point when acquisition stopped
     daqData = daqData(1:userDAQ.ScansAcquired, :);
     daqOutput = daqOutput(1:userDAQ.ScansAcquired, :);
+    
+    % display number of leg video frames triggered 
+    numLegVidTrigs = sum(daqOutput);
+    fprintf('%d leg video frames triggered. Compare with number camera has acquired',...
+        numLegVidTrigs);
     
     % save global variables into variables returned by this function
     rawData = daqData;
