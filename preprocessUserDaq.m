@@ -20,11 +20,17 @@
 %   
 %
 % CREATED: 1/22/20
-% UPDATED: 1/22/20 - HHY
+% UPDATED: 3/23/20 - HHY
 %
 
 function [daqData, daqOutput, daqTime] = preprocessUserDaq(...
     inputParams, rawData, rawOutput, settings)
+
+    % initialize daqData, daqOutput, daqTime - prevents bug when there is
+    % no input or output data
+    daqData = [];
+    daqOutput = [];
+    daqTime = [];
 
     % convert rawData array into daqData struct, with named fields
     colNum = 1; % counter of columns in rawData array
