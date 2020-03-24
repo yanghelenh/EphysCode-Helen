@@ -182,17 +182,14 @@ function runEphysExpt()
         exptTypeName = extractBefore(exptTypeFileName, '.');
         exptFn = str2func(exptTypeName);
 
-        % display this experiment's path
-        disp(pwd);
-
         % run actual experiment code
         try
             [rawData, inputParams, rawOutput] = exptFn(...
                 settings, exptDuration); 
-        catch errMes
+        catch % errMes
             disp('Invalid Experimental Function. Ending runEphysExpt()');
-            rethrow(errMes);
-            % ends run of epxeriment
+%             rethrow(errMes); % if runEphysExpt() crashes, rethrow error
+            % ends run of experiment
             return;
         end
         
