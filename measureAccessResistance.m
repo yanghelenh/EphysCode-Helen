@@ -22,8 +22,8 @@ function [holdingCurrent, accessResistance, inputResistance] = ...
     measureAccessResistance(settings)
 
     % some constants
-    startSteadyState = 1/3; % steady state as 1/3 into pulse
-    endSteadyState = 2/3; % to 2/3 into pulse
+    startSteadyState = 2/3; % steady state as 2/3 from end of pulse
+    endSteadyState = 1/3; % to 1/3 from end of pulse
     VOLTAGE_STEP_AMP = 5; %mV  (seal test from the amplifier)
     V_PER_mV = 1e-3; % V /1000 mV
     A_PER_pA = 1e-12; % 1e-12 A / 1 pA
@@ -43,9 +43,6 @@ function [holdingCurrent, accessResistance, inputResistance] = ...
 
     % holding current as mean current during trial
     holdingCurrent = mean(ephysData.current);
-
-    % set current trace to where average is zero
-    currentZeroed = ephysData.current - holdingCurrent;
     
     % logical array for when voltage is above the mean
     highV = ephysData.voltage > mean(ephysData.voltage);
@@ -65,30 +62,56 @@ function [holdingCurrent, accessResistance, inputResistance] = ...
         pulseStarts = pulseStarts(1:end-1);
     end
     
-    % pulse steady state start ind 
+    % trough - when pulse off; calculate start, end
+    troughStarts = pulseEnds + 1;
+    troughEnds = pulseStarts - 1;
+    
+    % for troughs, clip ends that don't have a corresponding start
+    if troughEnds(1) < troughStarts(1)
+        troughEnds = troughEnds(2:end);
+    end
+    % for troughs, clip starts that don't have corresponding end
+    if troughStarts(end) > troughEnds(end)
+        troughStarts = troughStarts(1:end-1);
+    end
+    
+    % pulse steady state start and ind 
     pulseSSStarts = round(pulseEnds - ((pulseEnds - pulseStarts) * ...
         startSteadyState));
     pulseSSEnds = round(pulseEnds - ((pulseEnds - pulseStarts) * ...
         endSteadyState));
     
-    % find steadyState current during pulses using only points b/w
+    % trough steady state start and end ind
+    troughSSStarts = round(troughEnds - ((troughEnds - troughStarts) * ...
+        startSteadyState));
+    troughSSEnds = round(troughEnds - ((troughEnds - troughStarts) * ...
+        endSteadyState));
+    
+    % find steadyState current during pulses, troughs using only points b/w
     %  startSteadyState and endSteadyState 
     % also find peak current during pulses, only between pulse start and
     %  startSteadyState
-    pulseSSCurrents = zeros(size(pulseStarts));
+    pulseSSCurrents = zeros(size(pulseSSStarts));
     peakCurrents = pulseSSCurrents;
+    troughSSCurrents = zeros(size(troughSSStarts));
 
     % loop through all pulses
-    for i = 1:length(pulseStarts)
+    for i = 1:length(pulseSSStarts)
         pulseSSCurrents(i) = mean(...
-            currentZeroed(pulseSSStarts(i):pulseSSEnds(i)));
-        peakCurrents(i) = max(currentZeroed(...
+            ephysData.current(pulseSSStarts(i):pulseSSEnds(i)));
+        peakCurrents(i) = max(ephysData.current(...
             pulseStarts(i):pulseSSStarts(i)));
     end
+    % loop through all troughs
+    for i = 1:length(troughSSStarts)
+        troughSSCurrents(i) = mean(...
+            ephysData.current(troughSSStarts(i):troughSSEnds(i)));
+    end
 
-    % get mean steady state current, peak current
-    meanPeakCurrent = mean(peakCurrents);
-    meanSSCurrent = mean(pulseSSCurrents);
+    % get mean steady state current, peak current - relative to mean steady
+    %  state current during trough
+    meanPeakCurrent = mean(peakCurrents) - mean(troughSSCurrents);
+    meanSSCurrent = mean(pulseSSCurrents) - mean(troughSSCurrents);
     
     % solve for access resistance in MOhm (R = V/I) using peak current
     accessResistance = ((VOLTAGE_STEP_AMP * V_PER_mV) / ...

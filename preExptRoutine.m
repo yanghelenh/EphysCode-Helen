@@ -39,7 +39,7 @@ function preExptData = preExptRoutine(settings)
     %% Measure pipette resistance loops until 'no' selected
     while 1
         contAns = input(...
-            '\n\n Measure pipette resistance? (y/enter = yes, n = no) ',...
+            '\nMeasure pipette resistance? (y/enter = yes, n = no) ',...
             's');
         if strcmpi(contAns,'y') || strcmpi(contAns,'') % 'y' or enter
             type = 'pipette';
@@ -47,10 +47,10 @@ function preExptData = preExptRoutine(settings)
                 settings, type);
 
             printVariable(preExptData.pipetteResistance, ...
-                'Pipette Resistance', 'MOhms');
+                'Pipette Resistance', ' MOhms');
 
             contA = input(...
-                '\n Measure pipette resistance AGAIN? (y = yes, n/enter = no) ',...
+                '\nMeasure pipette resistance AGAIN? (y = yes, n/enter = no) ',...
                 's');
             if  strcmpi(contA,'n') || strcmpi(contA,'')
                 break;
@@ -62,7 +62,7 @@ function preExptData = preExptRoutine(settings)
 
     %% Measure seal resistance
     contAns = input(...
-        '\n\n Measure seal resistance? (y/enter = yes, n = no)','s');
+        '\nMeasure seal resistance? (y/enter = yes, n = no) ','s');
     if strcmpi(contAns,'y') || strcmpi(contAns,'') 
         type = 'seal';
         preExptData.sealResistance = measurePipetteResistance(...
@@ -70,16 +70,16 @@ function preExptData = preExptRoutine(settings)
 
         % function returns MOhms, divide by 1000 to report GOhms
         printVariable(preExptData.sealResistance/1000 , ...
-            'Seal Resistance', 'GOhms');
+            'Seal Resistance', ' GOhms');
     end
 
     %% Measure voltage trial to look at cell attached spikes
     contAns = input(...
-        '\n\n Run a trial in V-clamp to measure cell attached spikes? ',...
+        '\nRun a trial in V-clamp to measure cell attached spikes? ',...
         's');
     if strcmpi(contAns,'y') || strcmpi(contAns,'')
         % get trial duration as user input
-        duration = input('\n Duration in sec of trial: ');
+        duration = input('\nDuration in sec of trial: ');
         
         % acquire trial
         [rawData, inputParams, rawOutput] = ephysRecording(settings, ...
@@ -99,7 +99,7 @@ function preExptData = preExptRoutine(settings)
 
 
     %% Measure access and input resistance and holding current
-    contAns = input('\n\n Measure access resistance? ','s');
+    contAns = input('\nMeasure access resistance? ','s');
     if strcmpi(contAns,'y') || strcmpi(contAns,'')
         [preExptData.initialHoldingCurrent, ...
             preExptData.initialAccessResistance, ...
@@ -107,16 +107,16 @@ function preExptData = preExptRoutine(settings)
             measureAccessResistance(settings);
 
         printVariable(preExptData.initialHoldingCurrent, ...
-            'Holding Current', 'pA');
+            'Holding Current', ' pA');
         printVariable(preExptData.initialAccessResistance, ...
-            'Access Resistance', 'MOhms');
+            'Access Resistance', ' MOhms');
         printVariable(preExptData.initialInputResistance, ...
-            'Input Resistance', 'MOhms');
+            'Input Resistance', ' MOhms');
 
     end
 
     %% Measure resting voltage (I = 0)
-    contAns = input('\n\n Run a trial in I=0? ','s');
+    contAns = input('\nRun a trial in I=0? ','s');
     if strcmpi(contAns,'y') || strcmpi(contAns,'')
         % duration to get resting voltage same as seal test duration
         duration = settings.sealTestDur;

@@ -17,6 +17,7 @@
 % UPDATED
 %   11/4/19 - HHY
 %   2/27/20 - HHY
+%   3/24/20 - HHY - debugging error with how troughs extracted
 %
 
 function pipetteResistance = measurePipetteResistance(settings, type)
@@ -65,14 +66,25 @@ function pipetteResistance = measurePipetteResistance(settings, type)
     % trough - when pulse off; calculate start, end, midpoint indicies
     troughStarts = pulseEnds + 1;
     troughEnds = pulseStarts - 1;
+    
+    % for troughs, clip ends that don't have a corresponding start
+    if troughEnds(1) < troughStarts(1)
+        troughEnds = troughEnds(2:end);
+    end
+    % for troughs, clip starts that don't have corresponding end
+    if troughStarts(end) > troughEnds(end)
+        troughStarts = troughStarts(1:end-1);
+    end
+    
+    % midpoint indices of pulse off
     troughMids = round(troughEnds - ((troughEnds - troughStarts)/2));
     
     % find current and voltage during pulses and troughs, use only the last
     %  half of each pulse/trough (from midpoint to endpoint)
     pulseCurrents = zeros(size(pulseStarts));
     pulseVoltages = pulseCurrents;
-    troughCurrents = pulseCurrents;
-    troughVoltages = pulseCurrents;
+    troughCurrents = zeros(size(troughStarts));
+    troughVoltages = troughCurrents;
     
     % loop through all pulses
     for i = 1:length(pulseStarts)
@@ -80,6 +92,9 @@ function pipetteResistance = measurePipetteResistance(settings, type)
             ephysData.current(pulseMids(i):pulseEnds(i)));
         pulseVoltages(i) = mean(...
             ephysData.voltage(pulseMids(i):pulseEnds(i)));
+    end
+    % loop through all troughs
+    for i = 1:length(troughStarts)
         troughCurrents(i) = mean(...
             ephysData.current(troughMids(i):troughEnds(i)));
         troughVoltages(i) = mean(...

@@ -19,7 +19,7 @@
 % UPDATED: 
 %   11/4/19 - HHY
 %   2/26/20 - HHY
-%   3/23/20 - HHY
+%   3/24/20 - HHY
 %
 
 function [rawData, inputParams, rawOutput] = ephysRecording(settings, ...
@@ -58,4 +58,5 @@ function [rawData, inputParams, rawOutput] = ephysRecording(settings, ...
     % acquire data (in foreground)
     rawData = userDAQ.startForeground();
 
+    disp('Ephys recording acquired');
 end

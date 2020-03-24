@@ -15,7 +15,7 @@
 % USE: runEphysExpt()
 %
 % Created: 11/3/19
-% Updated: 3/23/20 - HHY
+% Updated: 3/24/20 - HHY
 %
 
 function runEphysExpt()
@@ -114,7 +114,7 @@ function runEphysExpt()
         
         % **ASKS TO RUN PRE-EXPT ROUTINES**
         while 1
-            runPERout = input('\n\nRun pre-experimental routines? (y/n): ', 's');
+            runPERout = input('\nRun pre-experimental routines? (y/n): ', 's');
             if strcmpi(runPERout, 'y')
                 preExptData = preExptRoutine(settings);
                 
@@ -122,7 +122,7 @@ function runEphysExpt()
                 %  fail to patch cell, try again, at stage past measuring
                 %  pipette resistance, but trying for same cell)
                 runPERagain = input(...
-                    '\n\nRun pre-experimental routines again? (y/n): ', ...
+                    '\nRun pre-experimental routines again? (y/n): ', ...
                     's');
                 if ~strcmpi(runPERagain, 'y')
                     disp('Did not run pre-experimental routines again.');
