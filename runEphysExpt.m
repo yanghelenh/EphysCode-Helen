@@ -15,12 +15,19 @@
 % USE: runEphysExpt()
 %
 % Created: 11/3/19
-% Updated: 3/24/20 - HHY
-%
+% Updated: 
+%   3/24/20 - HHY
+%   6/28/20 - HHY - collectData's persistent variable whichInScan needs to
+%   be persistent only for 1 trial, not across trials; add clear statement
+%   to fix that
 
 function runEphysExpt()
     % clean up
     close all
+    
+    % clear function collectData() because it has persistent variable
+    %  whichInScan that can't be persistent across different trials
+    clear collectData
     
     % initialize persistent variables
     persistent cellDirPath trialNum;
