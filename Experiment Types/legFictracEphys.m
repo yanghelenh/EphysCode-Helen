@@ -208,6 +208,10 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
             'Press Enter when done with these steps.'];
         input(prompt, 's');
     end
+    
+    % prompt user for current number of leg vid frames grabbed
+    prompt = 'Enter current number of leg video frames grabbed: ';
+    inputParams.startLegVidNum = str2double(input(prompt, 's'));
 
     % get time stamp of approximate experiment start
     inputParams.startTimeStamp = datestr(now, 'HH:MM:SS');
@@ -254,6 +258,14 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     % display number of leg video frames triggered 
     numLegVidTrigs = sum(daqOutput);
     fprintf('%d leg video frames triggered.\n', numLegVidTrigs);
+    
+    % prompt user for current number of leg video frames grabbed
+    prompt = 'Enter current number of leg video frames grabbed: ';
+    inputParams.endLegVidNum = str2double(input(prompt, 's'));
+    
+    % display total number of leg video frames acquired
+    numLegVidAcq = inputParams.endLegVidNum - inputParams.startLegVidNum;
+    fprintf('%d leg video frames grabbed. \n', numLegVidAcq);
     
     % save global variables into variables returned by this function
     rawData = daqData;
