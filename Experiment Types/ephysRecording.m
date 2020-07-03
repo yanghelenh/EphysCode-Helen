@@ -26,7 +26,7 @@ function [rawData, inputParams, rawOutput] = ephysRecording(settings, ...
     duration)
 
     % EXPERIMENT-SPECIFIC PARAMETERS
-    exptCond = 'ephysRecording'; % name of trial type
+    inputParams.exptCond = 'ephysRecording'; % name of trial type
     
     % which input and output data streams used in this experiment
     inputParams.aInCh = {'ampScaledOut', 'ampI', ...

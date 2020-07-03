@@ -30,9 +30,9 @@ function runEphysExpt()
     %  whichInScan that can't be persistent across different trials
     clear collectData
     
-    % initialize persistent variables
+    % initialize persistent variables for this function
     persistent cellDirPath trialNum;
-    
+
     % load constant settings
     [dataDir, exptFnDir, settings] = ephysSettings();
     
@@ -41,6 +41,15 @@ function runEphysExpt()
     
     % NEW CELL
     if (strcmpi(newCell, 'y'))
+        % clear functions and persistent and global variables for new cell
+        clear collectData % has persistent variable whichInScan
+        % restart binary for whether leg vid has been intialized
+        clear global firstLegVidTrial
+        
+        % reset values of persistent variables
+        cellDirPath = [];
+        trialNum = [];
+
         % set up folder structure for organizing data 
         % prompts for date directory; start from data directory in
         %  ephysSettings()
@@ -147,7 +156,7 @@ function runEphysExpt()
         end
  
     % NOT A NEW CELL    
-    elseif (strcmpi(newCell, 'n'))
+    elseif (strcmpi(newCell, 'n'))    
         cd(cellDirPath) % make sure we're in the cell directory
         
         % **CONTINUES WITH NEXT TRIAL**        
