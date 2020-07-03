@@ -20,6 +20,7 @@
 %   6/28/20 - HHY - collectData's persistent variable whichInScan needs to
 %   be persistent only for 1 trial, not across trials; add clear statement
 %   to fix that
+%   6/30/20 - HHY - save computed pre-experimental data
 
 function runEphysExpt()
     % clean up
@@ -125,6 +126,9 @@ function runEphysExpt()
             if strcmpi(runPERout, 'y')
                 preExptData = preExptRoutine(settings);
                 
+                % save pre-expt data !!
+                save('preExptData.mat', 'preExptData', '-v7.3');
+                
                 % asks about running pre-experimental routine again (e.g.
                 %  fail to patch cell, try again, at stage past measuring
                 %  pipette resistance, but trying for same cell)
@@ -209,7 +213,7 @@ function runEphysExpt()
         
         % save data
         trialFileName = sprintf('trial%02d.mat', trialNum); % file name
-        save(trialFileName, 'rawData', 'rawOutput', 'inputParams', '-v7.3');
+        save(trialFileName, 'rawData', 'rawOutput', 'inputParams','-v7.3');
         fprintf('Data for trial %02d saved! \n', trialNum);
         
     
