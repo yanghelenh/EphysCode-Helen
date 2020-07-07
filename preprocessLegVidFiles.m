@@ -20,6 +20,9 @@
 % UPDATED:
 %   7/2/20 - HHY
 %   7/3/20 - HHY
+%   7/6/20 - HHY - everything but deleting indiv images now happens with
+%       call to this function
+%
 
 function preprocessLegVidFiles()
 
@@ -47,8 +50,8 @@ function preprocessLegVidFiles()
     % full path to scripts folder
     scriptsPath = [dateDirPath filesep 'scripts'];
     
-    % initialize list of zip script paths (for writing batch file later)
-    allZipScriptPaths = {};
+%     % initialize list of zip script paths (for writing batch file later)
+%     allZipScriptPaths = {};
     
     % initialize list of all rawLegVid folder paths (for writing file to
     %  delete all later)
@@ -166,10 +169,10 @@ function preprocessLegVidFiles()
                     zipScriptPath = [scriptsPath filesep zipScriptFname];
                     zipScriptFID = fopen(zipScriptPath, 'w');
                     
-                    % add this zip script path to cell array of them
-                    % (for writing to batch file later)
-                    allZipScriptPaths = {allZipScriptPaths{:} ...
-                        zipScriptPath};
+%                     % add this zip script path to cell array of them
+%                     % (for writing to batch file later)
+%                     allZipScriptPaths = {allZipScriptPaths{:} ...
+%                         zipScriptPath};
                     
                     % write constant portions of script
                     fprintf(zipScriptFID, '$7zipPath = "%s"\n', PATH_7ZIP);
@@ -207,28 +210,48 @@ function preprocessLegVidFiles()
                     else
                         fprintf('Error creating %s. \n', legVidFName);
                     end
+                    
+                    % generate command for calling powershell script for
+                    %  zipping
+                    zipCmd = ...
+                        sprintf('Powershell -NoProfile -ExecutionPolicy Bypass -Command "%s" \n', ...
+                        zipScriptPath);
+                    % run command to zip files
+                    zipStatus = system(zipCmd);
+                    
+                    % display whether zipping happened successfully
+                    if ~(zipStatus)
+                        fprintf('%s zipped succesfully!\n', ...
+                            [flyDirs(i).name '_' cellDirs(j).name '_'...
+                            trialName]);
+                    else
+                        fprintf('Error zipping %s.\n', ...
+                            [flyDirs(i).name '_' cellDirs(j).name '_'...
+                            trialName]);
+                    end
+                        
                 end
             end
         end
     end
     
-    % create batch file to run all powershell scripts
-    batchZipFName = [dateDirName '_batchZip.bat'];
-    batchZipPath = [scriptsPath filesep batchZipFName];
-    batchZipFID = fopen(batchZipPath, 'w');
-    
-    % write constant lines
-    fprintf(batchZipFID, '@ECHO OFF\n'); % so batch file contents not printed
-    
-    % write one call to Powershell for each zip script
-    for i = 1:length(allZipScriptPaths)
-        fprintf(batchZipFID, ...
-            'Powershell -NoProfile -ExecutionPolicy Bypass -Command "%s" \n',...
-            allZipScriptPaths{i});
-    end
-    
-    % close batch file
-    fclose(batchZipFID);
+%     % create batch file to run all powershell scripts
+%     batchZipFName = [dateDirName '_batchZip.bat'];
+%     batchZipPath = [scriptsPath filesep batchZipFName];
+%     batchZipFID = fopen(batchZipPath, 'w');
+%     
+%     % write constant lines
+%     fprintf(batchZipFID, '@ECHO OFF\n'); % so batch file contents not printed
+%     
+%     % write one call to Powershell for each zip script
+%     for i = 1:length(allZipScriptPaths)
+%         fprintf(batchZipFID, ...
+%             'Powershell -NoProfile -ExecutionPolicy Bypass -Command "%s" \n',...
+%             allZipScriptPaths{i});
+%     end
+%     
+%     % close batch file
+%     fclose(batchZipFID);
     
     % create powershell script that deletes all rawLegVid folders 
     deleteRLVscriptFName = [dateDirName '_deleteRawLegVid.ps1'];
@@ -250,7 +273,7 @@ function preprocessLegVidFiles()
     batchDeleteRLVfid = fopen(batchDeleteRLVpath, 'w');
     
     % write constant lines
-    fprintf(batchDeleteFLVfid, '@ECHO OFF\n'); % so batch file contents not printed
+    fprintf(batchDeleteRLVfid, '@ECHO OFF\n'); % so batch file contents not printed
     
     % write call to Powershell
     fprintf(batchDeleteRLVfid, ...
