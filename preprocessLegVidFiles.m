@@ -22,6 +22,7 @@
 %   7/3/20 - HHY
 %   7/6/20 - HHY - everything but deleting indiv images now happens with
 %       call to this function
+%   7/10/20 - HHY - print more status updates to screen
 %
 
 function preprocessLegVidFiles()
@@ -102,7 +103,9 @@ function preprocessLegVidFiles()
                 % close file
                 fclose(renameScriptFID);
                 
-                % call script to do renaming                    
+                disp('Renaming leg vid images');
+                                
+                % call script to do renaming              
                 renameCmd = sprintf(...
                     'Powershell -NoProfile -ExecutionPolicy Bypass -Command "%s"', ...
                     renameScriptPath);
