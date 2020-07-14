@@ -20,13 +20,14 @@
 %   11/4/19 - HHY
 %   2/26/20 - HHY
 %   3/24/20 - HHY
+%   7/2/20 - HHY
 %
 
 function [rawData, inputParams, rawOutput] = ephysRecording(settings, ...
     duration)
 
     % EXPERIMENT-SPECIFIC PARAMETERS
-    exptCond = 'ephysRecording'; % name of trial type
+    inputParams.exptCond = 'ephysRecording'; % name of trial type
     
     % which input and output data streams used in this experiment
     inputParams.aInCh = {'ampScaledOut', 'ampI', ...
