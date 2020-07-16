@@ -21,6 +21,9 @@
 %   be persistent only for 1 trial, not across trials; add clear statement
 %   to fix that
 %   6/30/20 - HHY - save computed pre-experimental data
+%   7/16/20 - HHY - updates to allow pre-experimental routines to record
+%   behavior
+%
 
 function runEphysExpt()
     % clean up
@@ -146,6 +149,13 @@ function runEphysExpt()
                     's');
                 if ~strcmpi(runPERagain, 'y')
                     disp('Did not run pre-experimental routines again.');
+                    % clear functions and variables associated with leg vid
+                    %  acquistion so it restarts fresh for experimental
+                    %  trials
+                    clear collectData % has persistent variable whichInScan
+                    clear legFictracEphys
+                    % restart binary for whether leg vid has been intialized
+                    clear global firstLegVidTrial
                     break;
                 end
                 
