@@ -216,9 +216,9 @@ function runEphysExpt()
         try
             [rawData, inputParams, rawOutput] = exptFn(...
                 settings, exptDuration); 
-        catch % errMes
+        catch errMes
             disp('Invalid Experimental Function. Ending runEphysExpt()');
-%             rethrow(errMes); % if runEphysExpt() crashes, rethrow error
+            rethrow(errMes); % if runEphysExpt() crashes, rethrow error
             % ends run of experiment
             return;
         end
