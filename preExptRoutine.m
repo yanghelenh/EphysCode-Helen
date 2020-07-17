@@ -20,6 +20,8 @@
 % UPDATED: 11/4/19 - HHY
 %   2/27/20 - HHY
 %   3/11/20 - HHY
+%   7/16/20 - HHY - add in option of recording behavior during recording of
+%       cell attached spikes
 %
 
 function preExptData = preExptRoutine(settings)
@@ -81,20 +83,42 @@ function preExptData = preExptRoutine(settings)
         % get trial duration as user input
         duration = input('\nDuration in sec of trial: ');
         
-        % acquire trial
-        [rawData, inputParams, rawOutput] = ephysRecording(settings, ...
-            duration);
+        % prompt user for whether to record behavior while recording cell
+        %  attached spikes
+        behAns = input('\nRecord behavior? (y/n) ', 's');
+        % if yes, record behavior, run legFicTracEphys trial
+        if strcmpi(behAns, 'y')
+            % clear functions and variables associated with leg vid
+            %  acquistion so it restarts fresh
+            clear collectData % has persistent variable whichInScan
+            clear legFictracEphys
+            % restart binary for whether leg vid has been intialized
+            clear global firstLegVidTrial
+            % delete rawLegVid folder and contents if it exists (from prev
+            %  trial)
+            if (isfolder('rawLegVid'))
+                disp('Deleting old rawLegVid folder');
+                rmdir rawLegVid s
+            end
+            % acquire trial
+            [rawData, inputParams, rawOutput] = legFictracEphys(...
+                settings, duration);
+        else % otherwise, just ephys recording
+            [rawData, inputParams, rawOutput] = ephysRecording(...
+                settings, duration);
+        end
         
-        % process recording snippet
-        [daqData, daqOutput, daqTime] = preprocessUserDaq(inputParams, ...
-            rawData, rawOutput, settings);
-        [ephysData, ephysMeta] = preprocessEphysData(daqData, daqOutput, ...
-            daqTime, inputParams, settings);
+%         % process recording snippet
+%         [daqData, daqOutput, daqTime] = preprocessUserDaq(inputParams, ...
+%             rawData, rawOutput, settings);
+%         [ephysData, ephysMeta] = preprocessEphysData(daqData, daqOutput, ...
+%             daqTime, inputParams, settings);
 
         % TO DO: Add in calculation of spike rate here.
 
         % Save cellAttachedTrial trial in preExptTrials folder
-        save('cellAttachedTrial.mat', 'ephysData', 'ephysMeta', '-v7.3');
+        save('cellAttachedTrial.mat', 'rawData', 'rawOutput', ...
+            'inputParams', '-v7.3');
     end
 
 
@@ -137,7 +161,7 @@ function preExptData = preExptRoutine(settings)
             'Resting Voltage', 'mV');
 
         % Save resting voltage trial
-        save('restingVoltageTrial.mat','ephysData','ephysMeta', '-v7.3');
+        save('restingVoltageTrial.mat', 'ephysData', 'ephysMeta', '-v7.3');
     end
 
 
