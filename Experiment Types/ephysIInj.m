@@ -17,6 +17,8 @@
 % CREATED: 7/17/20 - HHY
 % UPDATED: 
 %   7/17/20 - HHY
+%   7/23/20 - HHY - prevent it from constantly outputting last analog
+%       output value, if non-zero
 %
 
 function [rawData, inputParams, rawOutput] = ephysIInj(settings, ...
@@ -99,6 +101,10 @@ function [rawData, inputParams, rawOutput] = ephysIInj(settings, ...
     disp('Acquiring ephys recording');
     % acquire data (in foreground)
     rawData = userDAQ.startForeground();
+    
+    % to stop it from presenting non-zero values if current injection
+    %  protocol ends on non-zero value
+    userDAQ.outputSingleScan(0);
 
     disp('Ephys recording with current injection acquired');
 end

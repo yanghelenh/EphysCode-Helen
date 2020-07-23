@@ -138,11 +138,11 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.VOut.ampVCmdGain = 20; % 20 mV/V
     settings.VOut.VConvFactor = 1 / (settings.VOut.ampVCmdGain * ...
         settings.VOut.vDivGain);
-    settings.VOut.zeroV = 0; % measure this!
+    settings.VOut.zeroV = -0.012880558953762; % mV, measured 7/23/20 - HHY
     settings.VOut.ampICmdGain = 2000 / settings.amp.beta; % 2000/beta pA/V
     settings.VOut.IConvFactor = 1 / (settings.VOut.ampICmdGain * ...
         settings.VOut.vDivGain);
-    settings.VOut.zeroI = 0; % measure this!
+    settings.VOut.zeroI = -0.965853722646187; % pA, measured 7/23/20 - HHY
     
     
     % Some static parameters for testing pipette/seal/access resistances
