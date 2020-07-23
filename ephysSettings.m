@@ -12,8 +12,10 @@
 %   settings - struct of settings
 %
 % Created: 11/3/19
-% Updated: 1/21/20 - HHY
-%
+% Updated: 
+%   1/21/20 - HHY
+%   7/22/20 - HHY - add zero values for zero current/voltage command from
+%       DAQ, to compensate for standing voltage delivered
 
 function [dataDir, exptFnDir, settings] = ephysSettings()
 
@@ -136,9 +138,11 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.VOut.ampVCmdGain = 20; % 20 mV/V
     settings.VOut.VConvFactor = 1 / (settings.VOut.ampVCmdGain * ...
         settings.VOut.vDivGain);
+    settings.VOut.zeroV = 0; % measure this!
     settings.VOut.ampICmdGain = 2000 / settings.amp.beta; % 2000/beta pA/V
     settings.VOut.IConvFactor = 1 / (settings.VOut.ampICmdGain * ...
         settings.VOut.vDivGain);
+    settings.VOut.zeroI = 0; % measure this!
     
     
     % Some static parameters for testing pipette/seal/access resistances
