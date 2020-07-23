@@ -27,7 +27,8 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
 
     %  Set the paths according to whether we are on the MAC or PC
     if strcmp(comptype, PC_STRING) % WINDOWS path
-        dataDir = 'D:\Data\Helen';
+%         dataDir = 'D:\Data\Helen';
+        dataDir = 'F:\Data\Helen';
         % path to folder containing all experiment defining functions
         exptFnDir = 'C:\Users\WilsonLab\Documents\HelenExperimentalCode\EphysCode-Helen\Experiment Types';
         % add experiment function path
