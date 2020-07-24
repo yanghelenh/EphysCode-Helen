@@ -48,6 +48,9 @@ function [rawData, inputParams, rawOutput] = ephysIInj(settings, ...
     % path to current injection protocol functions
     iPath = iInjDir();
     
+    % remind user to flip ext. command switch on amplifier
+    disp('Flip Ext. Command switch on 200B to ON');
+    
     % prompt user to enter function call to current injection function
         % prompt user to select an experiment
     iInjSelected = 0;
@@ -82,7 +85,8 @@ function [rawData, inputParams, rawOutput] = ephysIInj(settings, ...
     % run current injection function to get output vector
     try
         [iInjOut, iInjParams] = iInjFn(settings, durScans); 
-    catch % errMes
+    catch %errMes
+        % rethrow(errMes);
         error('Invalid current injection function. Ending ephysIInj()');
     end
     

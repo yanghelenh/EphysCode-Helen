@@ -75,26 +75,27 @@ function [iInjOut, iInjParams] = evenMultiStepIInj(settings, durScans)
     
     % each stimulus as a column, in order from min to max; starts with
     %  space, ends with step
-    spaceMatrix = ones(spaceDurScans, numScans) * spaceAmpV;
-    stepMatrix = ones(stepDurScans, numScans) .* allStepAmpsV;
+    spaceMatrix = ones(spaceDurScans, numSteps) * spaceAmpV;
+    stepMatrix = ones(stepDurScans, numSteps) .* allStepAmpsV;
     stimMatrix = [spaceMatrix; stepMatrix];
-    
-    % number of full repeats
-    numFullReps = floor(durScans / (spaceDurScans + stepDurScans));
-    
-    % number of scans in remainder
-    numScansLeft = mod(durScans, (spaceDurScans + stepDurScans));
-    
+      
     % generate stimulus, depends on whether or not to randomize
     if strcmpi(randomize, 'y')
+        
+        % number of full repeats (one step and space)
+        numReps = floor(durScans / (spaceDurScans + stepDurScans));
+
+        % number of scans in remainder
+        numScansLeft = mod(durScans, (spaceDurScans + stepDurScans));
+    
         % initialize iInjOut
         iInjOut = ones(durScans, 1);
         
         % generate random order of steps, index numbers into columns
-        stepOrderInd = randi(numSteps, numFullReps+1, 1); 
+        stepOrderInd = randi(numSteps, numReps+1, 1); 
        
         % loop and index into stimMatrix to pull appropriate stimuli
-        for i = 1:numFullReps
+        for i = 1:numReps
             startInd = 1 + (spaceDurScans + stepDurScans) * (i - 1);
             endInd = (spaceDurScans + stepDurScans) * i;
             
@@ -108,6 +109,12 @@ function [iInjOut, iInjParams] = evenMultiStepIInj(settings, durScans)
         end
 
     else % in order from min to max
+        % number of full repeats of stimulus, all steps
+        numFullReps = floor(durScans / ...
+            ((spaceDurScans + stepDurScans)*numSteps));
+        numScansLeft = mod(durScans, ...
+            ((spaceDurScans + stepDurScans)*numSteps));
+        
         % reshape stim matrix to single column vector
         oneRepStim = reshape(stimMatrix, numel(stimMatrix), 1);
         
