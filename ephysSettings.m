@@ -103,6 +103,10 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     % Analog output channel settings
     % analog output can be 'Voltage' or 'Current'
     settings.bob.aoMeasType = 'Voltage';
+    % analog output as 'SingleEnded'
+    settings.bob.aoOutType = 'SingleEnded';
+    % voltage range - for channels, in order of aOutChAssign
+    settings.bob.aoRange = [-5 5];
     
     % Digital output channel settings
     % digital output type - 'OutputOnly', not 'Bidirectional'

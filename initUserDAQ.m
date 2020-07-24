@@ -20,7 +20,9 @@
 %   doCh - handle to digital output channels
 %
 % Created: 7/29/18
-% Updated: 8/2/18 - HHY
+% Updated: 
+%   8/2/18 - HHY
+%   7/24/20 - HHY - updates to handling analog output
 %
 
 function [userDAQ, aiCh, aoCh, diCh, doCh] = initUserDAQ(...
@@ -50,7 +52,7 @@ function [userDAQ, aiCh, aoCh, diCh, doCh] = initUserDAQ(...
             settings.bob.aiMeasType);
         % set input type and range on channel
         for i = 1:length(aInInd)
-            aiCh(i).InputType = settings.bob.aiInType;
+            aiCh(i).TerminalConfig = settings.bob.aiInType;
             aiCh(i).Range = settings.bob.aiRange(i,:);
         end
     else
@@ -69,6 +71,11 @@ function [userDAQ, aiCh, aoCh, diCh, doCh] = initUserDAQ(...
         % actually add analog output channels
         aoCh = userDAQ.addAnalogOutputChannel(settings.bob.devID, ...
             aOutInd, settings.bob.aoMeasType);
+        % set input type and range on channels
+        for i = 1:length(aOutInd)
+            aoCh(i).TerminalConfig = settings.bob.aoOutType;
+            aoCh(i).Range = settings.bob.aoRange(i,:);
+        end
     else
         aoCh = []; % need to assign output arguments
     end

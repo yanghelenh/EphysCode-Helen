@@ -4,7 +4,7 @@
 % For simultaneous acquisition of leg video, FicTrac, and electrophysiology
 %  recording.
 % Uses background acquisition on DAQ
-% No current injection (at least as of 3/11/20)
+% No current injection; use legFictracEphysIInj() instead
 %
 % INPUTS:
 %   settings - struct of ephys setup settings, from ephysSettings()
@@ -15,8 +15,7 @@
 %       from a different channel
 %   inputParams - parameters for this experiment type
 %   rawOutput - raw output sent by DAQ, matrix where each column is
-%       different channel (this is here because trial type functions follow
-%       this format, but there is no rawOutput for this type)
+%       different channel
 %
 % CREATED: 3/11/20 - HHY
 %
