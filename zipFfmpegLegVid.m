@@ -7,6 +7,8 @@
 % INPUTS:
 %   inputParams - metadata about trial, loaded from saved data
 %   scriptsPath - full path to where scripts are saved
+%   cellDirPath - full path to where to put zip file
+%   rawLegVidPath - full path to raw leg videos folder
 %   flyName - name of fly (e.g. fly01)
 %   cellName - name of cell (e.g. cell01)
 %   trialName - name of trial (e.g. trial01)
@@ -19,9 +21,13 @@
 %
 % UPDATED:
 %   7/16/20 - HHY
+%   7/29/20 - HHY - fix bugs where not all variables passed from preprocess
 %
-function zipFfmpegLegVid(inputParams, scriptsPath, flyName, cellName, ...
-    trialName)
+function zipFfmpegLegVid(inputParams, scriptsPath, cellDirPath, ...
+    rawLegVidPath, flyName, cellName, trialName)
+
+    % some constants
+    PATH_7ZIP = 'C:\Program Files\7-Zip\7z.exe';
 
     % current number of frames grabbed same as start index
     %  for new video with zero indexing

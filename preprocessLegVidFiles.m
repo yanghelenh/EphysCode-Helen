@@ -25,12 +25,10 @@
 %   7/10/20 - HHY - print more status updates to screen
 %   7/16/20 - HHY - break out renaming, zipping, making video to separate
 %       functions, preprocessing to run also on leg vid in preExptTrials
+%   7/29/20 - HHY - fix bugs from breaking out separate functions
 %
 
 function preprocessLegVidFiles()
-
-    % some constants
-    PATH_7ZIP = 'C:\Program Files\7-Zip\7z.exe';
 
     % load ephys settings
     [dataDir, ~, ~] = ephysSettings();
@@ -122,8 +120,8 @@ function preprocessLegVidFiles()
                     if (contains(inputParams.exptCond, 'leg'))
                     	% generate .mp4 and .zip files for trial
                         zipFfmpegLegVid(inputParams, scriptsPath, ...
-                            flyDirs(i).name, cellDirs(j).name, ...
-                            'cellAttachedTrial');
+                            preExptPath, rawLegVidPath, flyDirs(i).name, ...
+                            cellDirs(j).name, 'cellAttachedTrial');
                     end
                     
                 end
@@ -167,7 +165,8 @@ function preprocessLegVidFiles()
                     
                     % generate .mp4 and .zip files for trial
                     zipFfmpegLegVid(inputParams, scriptsPath, ...
-                        flyDirs(i).name, cellDirs(j).name, trialName);
+                        cellDirPath, flyDirs(i).name, cellDirs(j).name, ...
+                        trialName);
                         
                 end
             end
