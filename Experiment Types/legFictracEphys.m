@@ -54,7 +54,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     inputParams.exptCond = 'legFictracEphys'; % name of trial type
     % leg tracking camera frame rate - make sure it's a whole number of
     %  DAQ scans
-    legCamFrameRate = 250; % in Hz
+    legCamFrameRate = 225; % in Hz
     legCamFrameRateScans = round(settings.bob.sampRate / legCamFrameRate);
     inputParams.legCamFrameRate = settings.bob.sampRate / ...
         legCamFrameRateScans;

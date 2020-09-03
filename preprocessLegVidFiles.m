@@ -165,8 +165,8 @@ function preprocessLegVidFiles()
                     
                     % generate .mp4 and .zip files for trial
                     zipFfmpegLegVid(inputParams, scriptsPath, ...
-                        cellDirPath, flyDirs(i).name, cellDirs(j).name, ...
-                        trialName);
+                        cellDirPath, rawLegVidPath, flyDirs(i).name, ...
+                        cellDirs(j).name,trialName);
                         
                 end
             end
