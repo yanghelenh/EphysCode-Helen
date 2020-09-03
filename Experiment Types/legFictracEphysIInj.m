@@ -21,6 +21,9 @@
 %
 % UPDATED:
 %   7/24/20 - HHY
+%   9/3/20 - HHY - fixed startDelay, dataAvailExceeds,
+%       actualExperimentDuration fields of inputParams (multiplied instead
+%       of divided by scan rate); changed leg video frame rate to 225 Hz
 %
 function [rawData, inputParams, rawOutput] = legFictracEphysIInj(...
     settings, duration)
@@ -52,7 +55,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphysIInj(...
     inputParams.exptCond = 'legFictracEphys'; % name of trial type
     % leg tracking camera frame rate - make sure it's a whole number of
     %  DAQ scans
-    legCamFrameRate = 250; % in Hz
+    legCamFrameRate = 225; % in Hz
     legCamFrameRateScans = round(settings.bob.sampRate / legCamFrameRate);
     inputParams.legCamFrameRate = settings.bob.sampRate / ...
         legCamFrameRateScans;
@@ -148,7 +151,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphysIInj(...
     startDelay = 0.5; % in seconds
     startDelayScans = round(startDelay * userDAQ.Rate); % in scans
     % save actual into inputParams
-    inputParams.startDelay = startDelayScans * userDAQ.Rate;
+    inputParams.startDelay = startDelayScans / userDAQ.Rate;
     
     % amount of data in seconds to queue each time DataRequired event is
     %  fired
@@ -172,7 +175,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphysIInj(...
     dataAvailExceeds = 0.5; % in seconds
     dataAvailExceedsScans = round(dataAvailExceeds * userDAQ.Rate); % in scans
     % save actual into inputParams
-    inputParams.dataAvailExceeds = dataAvailExceedsScans * userDAQ.Rate;
+    inputParams.dataAvailExceeds = dataAvailExceedsScans / userDAQ.Rate;
     % set value on DAQ
     userDAQ.NotifyWhenDataAvailableExceeds = dataAvailExceedsScans;
     
@@ -319,7 +322,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphysIInj(...
     fprintf('End time: %s \n', datestr(now, 'HH:MM:SS'));
     
     % save actual experiment duration into inputParams
-    inputParams.actualExptDuration = userDAQ.ScansAcquired * userDAQ.Rate;
+    inputParams.actualExptDuration = userDAQ.ScansAcquired / userDAQ.Rate;
     
     % only keep data and output up until point when acquisition stopped
     daqData = daqData(1:userDAQ.ScansAcquired, :);

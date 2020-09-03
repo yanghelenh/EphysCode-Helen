@@ -22,6 +22,9 @@
 % UPDATED:
 %   3/11/20 - HHY
 %   3/23/20 - HHY
+%   9/3/20 - HHY - fixed startDelay, dataAvailExceeds,
+%       actualExperimentDuration fields of inputParams (multiplied instead
+%       of divided by scan rate); changed leg video frame rate to 225 Hz
 %
 
 function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
@@ -93,7 +96,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     startDelay = 0.5; % in seconds
     startDelayScans = round(startDelay * userDAQ.Rate); % in scans
     % save actual into inputParams
-    inputParams.startDelay = startDelayScans * userDAQ.Rate;
+    inputParams.startDelay = startDelayScans / userDAQ.Rate;
     
     % timing for triggers to leg camera
     % amount of data in seconds to queue each time DataRequired event is
@@ -118,7 +121,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     dataAvailExceeds = 0.5; % in seconds
     dataAvailExceedsScans = round(dataAvailExceeds * userDAQ.Rate); % in scans
     % save actual into inputParams
-    inputParams.dataAvailExceeds = dataAvailExceedsScans * userDAQ.Rate;
+    inputParams.dataAvailExceeds = dataAvailExceedsScans / userDAQ.Rate;
     % set value on DAQ
     userDAQ.NotifyWhenDataAvailableExceeds = dataAvailExceedsScans;
     
@@ -248,7 +251,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     fprintf('End time: %s \n', datestr(now, 'HH:MM:SS'));
     
     % save actual experiment duration into inputParams
-    inputParams.actualExptDuration = userDAQ.ScansAcquired * userDAQ.Rate;
+    inputParams.actualExptDuration = userDAQ.ScansAcquired / userDAQ.Rate;
     
     % only keep data and output up until point when acquisition stopped
     daqData = daqData(1:userDAQ.ScansAcquired, :);
