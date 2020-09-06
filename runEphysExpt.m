@@ -18,11 +18,14 @@
 % Updated: 
 %   3/24/20 - HHY
 %   6/28/20 - HHY - collectData's persistent variable whichInScan needs to
-%   be persistent only for 1 trial, not across trials; add clear statement
-%   to fix that
+%     be persistent only for 1 trial, not across trials; add clear 
+%     statement to fix that
 %   6/30/20 - HHY - save computed pre-experimental data
 %   7/16/20 - HHY - updates to allow pre-experimental routines to record
-%   behavior
+%     behavior
+%   9/6/10 - HHY - asks user for text description of which cell when cell
+%     is new (string, can take any input; for things like 'left', or cell
+%     type)
 %
 
 function runEphysExpt()
@@ -52,6 +55,9 @@ function runEphysExpt()
         % reset values of persistent variables
         cellDirPath = [];
         trialNum = [];
+        
+        % asks for description of the cell
+        cellUserTxt = input('\nWhich cell is this? ', 's');
 
         % set up folder structure for organizing data 
         % prompts for date directory; start from data directory in
@@ -68,7 +74,7 @@ function runEphysExpt()
             contains({dateDirContents.name},'fly'));
         
         % Asks whether this is a new fly
-        newFly = input('New Fly? (y/n): ', 's');
+        newFly = input('\nNew Fly? (y/n): ', 's');
         if (strcmpi(newFly, 'n')) % NOT A NEW FLY 
             flyNum = length(currFlyDirs);
             
@@ -123,6 +129,7 @@ function runEphysExpt()
         cellDirPath = pwd;
         
         % generate basic experimental info struct
+        exptInfo.cellInfo = cellUserTxt;
         exptInfo.dateDir = dateDirName;
         exptInfo.flyDir = flyDirName;
         exptInfo.cellDir = cellDirName;

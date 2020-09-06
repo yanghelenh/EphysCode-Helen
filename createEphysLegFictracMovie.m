@@ -4,13 +4,14 @@
 %  variables, and leg movie. Starts from raw data.
 
 % full path to data folder
-dataPath = '/Users/hyang/Dropbox (HMS)/EphysData_RAW/200709/fly01/cell01';
+dataPath = '/Users/hyang/Dropbox (HMS)/EphysData_RAW/200826/fly01/cell01';
 % trial name
-trialName = 'trial05.mat';
+trialName = 'trial01.mat';
 % full path to leg video
-vidName = 'fly01_cell01_trial05_legVid';
+vidPath = '/Users/hyang/Desktop';
+vidName = 'fly01_cell01_trial01_legVid';
 
-tVid = [18.5 28.5]; % start and end times, in seconds
+tVid = [50 60]; % start and end times, in seconds
 
 cd(dataPath);
 
@@ -38,7 +39,7 @@ ficTracTimes = daqTime;
 
 % FicTrac variables
 sampRate = 1/(median(diff(ficTracTimes)));
-avgWindow = 0.3;
+avgWindow = 0.2;
 smoYawAngVel = moveAvgFilt(yawAngVel, sampRate, avgWindow);
 smoFwdVel = moveAvgFilt(fwdVel, sampRate, avgWindow);
 
@@ -46,7 +47,7 @@ smoFwdVel = moveAvgFilt(fwdVel, sampRate, avgWindow);
 % legVid variables
 legStartInd = find(legVidFrameTimes >= tVid(1), 1, 'first');
 legEndInd = find(legVidFrameTimes < tVid(2), 1, 'last');
-legVidPath = [pwd filesep vidName];
+legVidPath = [vidPath filesep vidName];
 legVidImgSize = [448 448];
 
 legVidImg = zeros(legVidImgSize(1),legVidImgSize(2), ...
@@ -56,8 +57,8 @@ for i = legStartInd:1:legEndInd
     legVidImg(:,:,i - legStartInd + 1) = imread(...
         [legVidPath filesep legVidFile]);
 end
-legVidMinInt = 40;
-legVidMaxInt = 150;
+legVidMinInt = 30;
+legVidMaxInt = 160;
 
 legVidFrameRate = 1/(median(diff(legVidFrameTimes)));
 
@@ -78,7 +79,7 @@ ephysVFig = ephysData.scaledVoltage;
 
 fwdVelScale = [-5 10];
 angVelScale = [-200 200];
-ephysVScale = [-60 -30];
+ephysVScale = [-55 -25];
 
 timeScale = [0 10];
 
@@ -107,7 +108,7 @@ for i = 1:(legEndInd - legStartInd + 1)
     plot(ephysTime, ephysVFig(ephysDispInd(1):ephysDispInd(i)), 'b');
     ylim(ephysVScale);
     xlim(timeScale);
-    yticks([-60 -50 -40 -30]);
+    yticks([-55 -45 -35 -25]);
     xlabel('Time (s)');
     ylabel('Membrane Potential (mV)');
     ephysPos = get(ephysAx,'Position');
