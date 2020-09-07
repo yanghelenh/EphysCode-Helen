@@ -15,6 +15,7 @@
 %       initialAccessResistance
 %       initialInputResistance
 %       initialRestingVoltage
+%       internal
 %
 % CREATED: 11/4/19
 % UPDATED: 11/4/19 - HHY
@@ -22,6 +23,8 @@
 %   3/11/20 - HHY
 %   7/16/20 - HHY - add in option of recording behavior during recording of
 %       cell attached spikes
+%   9/6/20 - HHY - adds in prompt to user to enter in string about
+%       internal solution of pipette, saved to preExptData struct
 %
 
 function preExptData = preExptRoutine(settings)
@@ -37,6 +40,10 @@ function preExptData = preExptRoutine(settings)
     cd(preExptFolderName);
     
     preExptPath = pwd;
+    
+    %% Ask about pipette internal
+    intSln = input('\nWhich internal? ', 's');
+    preExptData.internal = intSln;
     
     %% Measure pipette resistance loops until 'no' selected
     while 1
