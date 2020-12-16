@@ -27,8 +27,8 @@
 %       of divided by scan rate); changed leg video frame rate to 225 Hz
 %
 
-function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
-    duration)
+function [rawData, inputParams, rawOutput] = legvidFictracvidEphys(...
+    settings, duration)
 
     % Initialize global variable for raw data collection
     global daqData
@@ -54,7 +54,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     whichOutScan = 1; % start at 1
 
     % EXPERIMENT-SPECIFIC PARAMETERS
-    inputParams.exptCond = 'legFictracEphys'; % name of trial type
+    inputParams.exptCond = 'legvidFictracvidEphys'; % name of trial type
     % leg tracking camera frame rate - make sure it's a whole number of
     %  DAQ scans
     legCamFrameRate = 250; % in Hz
@@ -62,13 +62,19 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     inputParams.legCamFrameRate = settings.bob.sampRate / ...
         legCamFrameRateScans;
     
+    % FicTrac camera frame rate - make sure it's a whole number of DAQ
+    %  scans
+    ftCamFrameRate = 150; % in Hz
+    ftCamFrameRateScans = round(settings.bob.sampRate / ftCamFrameRate);
+    inputParams.ftCamFrameRate = settings.bob.sampRate / ...
+        ftCamFrameRateScans;
+    
     % which input and output data streams used in this experiment
     inputParams.aInCh = {'ampScaledOut', 'ampI', ...
-        'amp10Vm', 'ampGain', 'ampFreq', 'ampMode', ...
-        'ficTracHeading', 'ficTracIntX', 'ficTracIntY'};
+        'amp10Vm', 'ampGain', 'ampFreq', 'ampMode'};
     inputParams.aOutCh = {};
     inputParams.dInCh = {'ficTracCamFrames', 'legCamFrames'};
-    inputParams.dOutCh = {'legCamFrameStartTrig'};
+    inputParams.dOutCh = {'legCamFrameStartTrig', 'ficTracCamStartTrig'};
     
     % initialize DAQ, including channels
     [userDAQ, ~, ~, ~, ~] = initUserDAQ(settings, ...
@@ -101,15 +107,19 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     % timing for triggers to leg camera
     % amount of data in seconds to queue each time DataRequired event is
     %  fired
-    legTrigQueuedLen = 1; 
+    camTrigQueuedLen = 1; 
     % queue in scans
-    legTrigQueuedScans = round(legTrigQueuedLen * userDAQ.Rate);
-    % adjust so that leg camera frames divide evenly into queue, so that
-    %  triggers line up across different calls of DataRequired
-    legTrigQueuedScans = round(legTrigQueuedScans / legCamFrameRateScans)...
-        * legCamFrameRateScans;
+    camTrigQueuedScans = round(camTrigQueuedLen * userDAQ.Rate);
+    % adjust so that leg camera frames and FicTrac camera frames both 
+    %  divide evenly into queue, so that triggers line up across differen
+    %  calls of DataRequired
+    % get least common multiple of leg and FicTrac camera frame rates
+    lcmCamFrameRates = lcm(legCamFrameRateScans, ftCamFrameRateScans);
+    % use LCM to determine amount of data to queue (in scans)
+    camTrigQueuedScans = round(camTrigQueuedScans / lcmCamFrameRates)...
+        * lcmCamFrameRates;
     % save actual queued length into inputParams
-    inputParams.legTrigQueuedLen = legTrigQueuedScans / userDAQ.Rate;
+    inputParams.legTrigQueuedLen = camTrigQueuedScans / userDAQ.Rate;
     
     % DataRequired event fires whenever queued data falls below threshold -
     %  use default here of 0.5 sec
@@ -137,50 +147,62 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     
     % QUEUE INITIAL OUTPUT - leg camera frame triggers
     % number of scans to queue initially - delay + initial bout of data
-    numScans = startDelayScans + legTrigQueuedScans;
+    numScans = startDelayScans + camTrigQueuedScans;
     
     legCamTrigInit = zeros(numScans, 1);
-    legCamStartInd = startDelayScans + 1;
+    ftCamTrigInit = zeros(numScans, 1);
+    bothCamStartInd = startDelayScans + 1;
 
     % generate trigger pattern for leg camera - starts with 0 for start
     %  delay time, then a 1 at leg camera frame rate
-    legCamTrigInit(legCamStartInd:legCamFrameRateScans:end) = 1;
+    legCamTrigInit(bothCamStartInd:legCamFrameRateScans:end) = 1;
+    
+    % generate trigger pattern for FicTrac camera
+    ftCamTrigInit(bothCamStartInd:ftCamFrameRateScans:end) = 1;
+    
+    % combine trigger patterns into output matrix
+    trigOutput = [legCamTrigInit ftCamTrigInit];
     
     % queue output on DAQ
-    userDAQ.queueOutputData(legCamTrigInit);
+    userDAQ.queueOutputData(trigOutput);
     
     % save queued output into daqOutput
-    lengthOut = length(legCamTrigInit);
-    daqOutput(whichOutScan:(whichOutScan + lengthOut - 1)) = ...
-        legCamTrigInit;
+    lengthOut = size(trigOutput,1);
+    daqOutput(whichOutScan:(whichOutScan + lengthOut - 1),:) = trigOutput;
     % update whichOutScan for next iteration
     whichOutScan = whichOutScan + lengthOut;
     
     % generate leg camera trigger pattern (to be queued after intial set)
-    legCamTrig = zeros(legTrigQueuedScans, 1);
+    legCamTrig = zeros(camTrigQueuedScans, 1);
     % trigger pattern for leg camera
     legCamTrig(1:legCamFrameRateScans:end) = 1;
+    % generate FicTrac camera trigger pattern
+    ftCamTrig = zeros(camTrigQueuedScans, 1);
+    ftCamTrig(1:ftCamFrameRateScans:end) = 1;
     
-    % generate leg camera trigger pattern of all zeros (for end)
-    legCamTrigEnd = zeros(legTrigQueuedScans, 1);
+    % combine into one output
+    bothCamTrigOutput = [legCamTrig ftCamTrig];
+    
+    % generate trigger pattern of all zeros (for end)
+    bothCamTrigEnd = zeros(camTrigQueuedScans, 2);
     
     % nested function for queuing more leg camera trigger outputs; called
     %  by event listener for DataRequired
-    function queueLegTrig(src, event)
+    function queueCamTrig(src, event)
         if ~acqStopBin
-            queueOutputData(src, legCamTrig);
+            queueOutputData(src, bothCamTrigOutput);
             
             % save queued output into daqOutput
-            lenOut = length(legCamTrig);
-            daqOutput(whichOutScan:(whichOutScan + lenOut - 1)) = ...
-                legCamTrig;
+            lenOut = size(bothCamTrigOutput,1);
+            daqOutput(whichOutScan:(whichOutScan + lenOut - 1),:) = ...
+                bothCamTrigOutput;
         else % when DAQ acquisition is stopped
-            queueOutputData(src, legCamTrigEnd);
+            queueOutputData(src, bothCamTrigEnd);
             
             % save queued output into daqOutput
-            lenOut = length(legCamTrigEnd);
-            daqOutput(whichOutScan:(whichOutScan + lenOut - 1)) = ...
-                legCamTrigEnd;
+            lenOut = size(bothCamTrigEnd,1);
+            daqOutput(whichOutScan:(whichOutScan + lenOut - 1),:) = ...
+                bothCamTrigEnd;
         end
         % update whichOutScan for next iteration
         whichOutScan = whichOutScan + lenOut;
@@ -188,7 +210,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     
     % create listeners for DataAvailable and DataRequired events
     dataAvailLh = addlistener(userDAQ, 'DataAvailable', @collectData);
-    dataReqLh = addlistener(userDAQ, 'DataRequired', @queueLegTrig);
+    dataReqLh = addlistener(userDAQ, 'DataRequired', @queueCamTrig);
     
     % first time leg video is acquired for cell
     %  set up folder for saving leg video, prompt to set up camera
@@ -209,16 +231,20 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
             '\n Make sure camera is acquiring (green play button). \n' ...
             'Press Enter when done with these steps.'];
         input(prompt, 's');
+        disp('Make sure the same is set up on the FicTrac computer');
     end
     
     % prompt user for current number of leg vid frames grabbed
     prompt = 'Enter current number of leg video frames grabbed: ';
     inputParams.startLegVidNum = str2double(input(prompt, 's'));
+    % prompt user for current number of FicTrac vid frames grabbed
+    prompt = 'Enter current number of FicTrac video frames grabbed: ';
+    inputParams.startFtVidNum = str2double(input(prompt, 's'));
 
     % get time stamp of approximate experiment start
     inputParams.startTimeStamp = datestr(now, 'HH:MM:SS');
     fprintf('Start time: %s \n', inputParams.startTimeStamp);
-    disp('Starting legFictracEphys acquisition');
+    disp('Starting legvidFictracvidEphys acquisition');
     
     % ACQUIRE IN BACKGROUND
     
@@ -258,16 +284,27 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     daqOutput = daqOutput(1:userDAQ.ScansAcquired, :);
     
     % display number of leg video frames triggered 
-    numLegVidTrigs = sum(daqOutput);
+    numLegVidTrigs = sum(daqOutput(:,1));
     fprintf('%d leg video frames triggered.\n', numLegVidTrigs);
+    % display number of FicTrac video frames triggered
+    numFtVidTrigs = sum(daqOutput(:,2));
+    fprintf('%d FicTrac video frames triggered.\n', numFtVidTrigs);
     
     % prompt user for current number of leg video frames grabbed
     prompt = 'Enter current number of leg video frames grabbed: ';
     inputParams.endLegVidNum = str2double(input(prompt, 's'));
     
+    % prompt user for current number of FicTrac video frames grabbed
+    prompt = 'Enter current number of FicTrac video frames grabbed: ';
+    inputParams.endFtVidNum = str2double(input(prompt, 's'));
+    
     % display total number of leg video frames acquired
     numLegVidAcq = inputParams.endLegVidNum - inputParams.startLegVidNum;
     fprintf('%d leg video frames grabbed. \n', numLegVidAcq);
+    
+    % display total number of leg video frames acquired
+    numFtVidAcq = inputParams.endFtVidNum - inputParams.startFtVidNum;
+    fprintf('%d FicTrac video frames grabbed. \n', numFtVidAcq);
     
     % save global variables into variables returned by this function
     rawData = daqData;
