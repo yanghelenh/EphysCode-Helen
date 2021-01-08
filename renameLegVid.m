@@ -13,8 +13,6 @@
 % OUTPUTS:
 %   renameStatus - status of renaming, returns 0 for success and 1 for
 %     failure
-%   none, but renames leg video files and saves Powershell script that did
-%     so
 %
 % CREATED:
 %   7/16/20 - same code as was in preprocessLegVidFiles, now broken out

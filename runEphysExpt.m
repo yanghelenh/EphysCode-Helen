@@ -23,9 +23,11 @@
 %   6/30/20 - HHY - save computed pre-experimental data
 %   7/16/20 - HHY - updates to allow pre-experimental routines to record
 %     behavior
-%   9/6/10 - HHY - asks user for text description of which cell when cell
+%   9/6/20 - HHY - asks user for text description of which cell when cell
 %     is new (string, can take any input; for things like 'left', or cell
 %     type)
+%   1/7/21 - HHY - also clear legvidFictracvidEphys after preExpt routines
+%     are run
 %
 
 function runEphysExpt()
@@ -161,6 +163,7 @@ function runEphysExpt()
                     %  trials
                     clear collectData % has persistent variable whichInScan
                     clear legFictracEphys
+                    clear legvidFictracvidEphys
                     % restart binary for whether leg vid has been intialized
                     clear global firstLegVidTrial
                     break;
