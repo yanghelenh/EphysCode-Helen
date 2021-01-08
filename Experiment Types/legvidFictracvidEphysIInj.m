@@ -30,6 +30,8 @@
 %       computers (experimental running this and FicTrac computer)
 %   1/7/21 - HHY - modify this code from legFictracvidEphys, adding current
 %       injection
+%   1/8/21 - HHY - prompt user to record number of FicTrac video frames
+%       grabbed through functions run on FicTrac computer
 %
 
 function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
@@ -314,7 +316,12 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     % prompt user for current number of leg vid frames grabbed
     prompt = 'Enter current number of leg video frames grabbed: ';
     inputParams.startLegVidNum = str2double(input(prompt, 's'));
-
+    
+    % prompt user to run saveFictracImgCount() on FicTrac computer
+    prompt = ['On FicTrac computer, run saveFictracImgCount(). \n' ...
+        'Press Enter when done'];
+    input(prompt, 's');
+    
     % get time stamp of approximate experiment start
     inputParams.startTimeStamp = datestr(now, 'HH:MM:SS');
     fprintf('Start time: %s \n', inputParams.startTimeStamp);
@@ -363,6 +370,7 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     % display number of FicTrac video frames triggered
     numFtVidTrigs = sum(daqOutput(:,2));
     fprintf('%d FicTrac video frames triggered.\n', numFtVidTrigs);
+    disp('Make sure to record number of FicTrac video frames grabbed');
     
     % prompt user for current number of leg video frames grabbed
     prompt = 'Enter current number of leg video frames grabbed: ';
