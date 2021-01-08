@@ -16,6 +16,7 @@
 %
 % UPDATED:
 %   12/31/20 - HHY
+%   1/8/21 - HHY - update for FicTrac data path
 %
 function createFictracVidPath()
 
@@ -23,7 +24,7 @@ function createFictracVidPath()
     % prompts for date directory; start from data directory in
     %  ephysSettings()
     disp('Select date directory');
-    dateDirPath = uigetdir(dataDir, 'Select date directory');
+    dateDirPath = uigetdir(ftDataDir(), 'Select date directory');
     cd(dateDirPath);
 
     % figure out which fly we're on in the date directory

@@ -18,6 +18,7 @@
 %
 % UPDATED:
 %   1/7/21 - HHY
+%   1/8/21 - HHY - update for FicTrac data directory
 %
 function saveFictracImgCount()
 
@@ -33,7 +34,7 @@ function saveFictracImgCount()
     
     % get folder to save .mat file into
     disp('Select data directory');
-    dataDirPath = uigetdir(dataDir, 'Select data directory');
+    dataDirPath = uigetdir(ftDataDir(), 'Select data directory');
     cd(dataDirPath);
     
     % ask user for trial name
