@@ -37,10 +37,6 @@ function saveFictracImgCount()
     dataDirPath = uigetdir(ftDataDir(), 'Select data directory');
     cd(dataDirPath);
     
-    % ask user for trial name
-    prompt = 'Trial name: ';
-    trialName = input(prompt, 's');
-    
     % prompt user for current number of FicTrac video frames grabbed
     prompt = 'Enter current number of FicTrac video frames grabbed: ';
     inputParams.startFtVidNum = str2double(input(prompt, 's'));
@@ -53,6 +49,10 @@ function saveFictracImgCount()
     % display number of frames acquired in this trial
     numFtVidAcq = inputParams.endFtVidNum - inputParams.startFtVidNum;
     fprintf('%d FicTrac video frames grabbed. \n', numFtVidAcq);
+    
+    % ask user for trial name
+    prompt = 'Trial name: ';
+    trialName = input(prompt, 's');
     
     % save start and end img counts into .mat file
     fullSavePath = [dataDirPath filesep trialName '.mat'];
