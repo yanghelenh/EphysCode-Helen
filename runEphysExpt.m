@@ -192,6 +192,7 @@ function runEphysExpt()
                 exptSelected = 1; % end loop
             elseif (contains(exptTypeFileName, '.m'))
                 disp(['Experiment: ' exptTypeFileName]);
+                
                 exptSelected = 1; % end loop
             else
                 disp('Select an experimental .m file or cancel');
