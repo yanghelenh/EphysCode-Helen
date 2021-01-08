@@ -1,10 +1,9 @@
-% legFictracvidEphys.m
+% legFictracvidEphysIInj.m
 %
 % Experimental Function
-% For simultaneous acquisition of leg video, FicTrac video, and 
-%  electrophysiology recording.
+% For simultaneous acquisition of leg video, FicTrac video, 
+%  electrophysiology recording, and current injection
 % Uses background acquisition on DAQ
-% No current injection; use legFictracvidEphysIInj() instead
 %
 % INPUTS:
 %   settings - struct of ephys setup settings, from ephysSettings()
@@ -29,9 +28,11 @@
 %       legvidFictracEphys
 %   1/7/21 - HHY - modify this code to accomodate code being run on both
 %       computers (experimental running this and FicTrac computer)
+%   1/7/21 - HHY - modify this code from legFictracvidEphys, adding current
+%       injection
 %
 
-function [rawData, inputParams, rawOutput] = legvidFictracvidEphys(...
+function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     settings, duration)
 
     % Initialize global variable for raw data collection
@@ -80,6 +81,12 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphys(...
     inputParams.dInCh = {'ficTracCamFrames', 'legCamFrames'};
     inputParams.dOutCh = {'legCamFrameStartTrig', 'ficTracCamStartTrig'};
     
+    % index for output channels: analog before digital
+    iInjChInd = 1;
+    legTrigChInd = 2;
+    ftTrigChInd = 3;
+    totNumOutCh = 3; % total number of output channels
+    
     % initialize DAQ, including channels
     [userDAQ, ~, ~, ~, ~] = initUserDAQ(settings, ...
         inputParams.aInCh, inputParams.aOutCh, inputParams.dInCh, ...
@@ -98,6 +105,58 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphys(...
     numOutCh = length(inputParams.aOutCh) + length(inputParams.dOutCh);
     % pre-allocate variable for data output
     daqOutput = zeros(maxNumScans, numOutCh);
+    
+    
+    % GET FULL CURRENT INJECTION OUTPUT VECTOR
+    % path to current injection protocol functions
+    iPath = iInjDir();
+    
+    % remind user to flip ext. command switch on amplifier
+    disp('Flip Ext. Command switch on 200B to ON');
+    
+    % prompt user to enter function call to current injection function
+        % prompt user to select an experiment
+    iInjSelected = 0;
+    disp('Select a current injection protocol');
+    while ~iInjSelected
+        iInjTypeFileName = uigetfile('*.m', ...
+            'Select a current injection protocol', iPath);
+        % if user cancels or selects valid file
+        if (iInjTypeFileName == 0)
+            disp('Selection cancelled');
+            iInjSelected = 1; % end loop
+        elseif (contains(iInjTypeFileName, '.m'))
+            disp(['Protocol: ' iInjTypeFileName]);
+            iInjSelected = 1; % end loop
+        else
+            disp('Select a current injection .m file or cancel');
+            iInjSelected = 0;
+        end
+    end
+
+    % if user cancels at this point 
+    if (iInjTypeFileName == 0)
+        % throw error message; ends run of this function
+        error('No current injection protocol was run. Ending ephysIInj()');
+    end
+    
+    % convert selected experiment file into function handle
+    % get name without .m
+    iInjTypeName = extractBefore(iInjTypeFileName, '.');
+    iInjFn = str2func(iInjTypeName);
+
+    % run current injection function to get output vector
+    try
+        [iInjOut, iInjParams] = iInjFn(settings, maxNumScans); 
+    catch %errMes
+        % rethrow(errMes);
+        error('Invalid current injection function. Ending ephysIInj()');
+    end
+    
+    % save info into returned variables
+    % record current injection function name
+    inputParams.iInjProtocol = iInjTypeName; 
+    inputParams.iInjParams = iInjParams; % current injection parameters
     
     
     % experiment timing info
@@ -156,6 +215,10 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphys(...
     legCamTrigInit = zeros(numScans, 1);
     ftCamTrigInit = zeros(numScans, 1);
     bothCamStartInd = startDelayScans + 1;
+    
+    % current injection output: delay and then start protocol
+    outputInit((startDelayScans+1):numScans, iInjChInd) = ...
+        iInjOut(1:(numScans-startDelayScans));
 
     % generate trigger pattern for leg camera - starts with 0 for start
     %  delay time, then a 1 at leg camera frame rate
@@ -184,29 +247,39 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphys(...
     ftCamTrig = zeros(camTrigQueuedScans, 1);
     ftCamTrig(1:ftCamFrameRateScans:end) = 1;
     
-    % combine into one output
-    bothCamTrigOutput = [legCamTrig ftCamTrig];
+    % output matrix preallocate
+    outputMatrix = zeros(camTrigQueuedScans, totNumOutCh);
     
-    % generate trigger pattern of all zeros (for end)
-    bothCamTrigEnd = zeros(camTrigQueuedScans, 2);
+    % output matrix of all zeros, for end
+    outputMatrixEnd = zeros(camTrigQueuedScans, totNumOutCh);
     
     % nested function for queuing more leg camera trigger outputs; called
     %  by event listener for DataRequired
-    function queueCamTrig(src, event)
+    function queueOut(src, event)
         if ~acqStopBin
-            queueOutputData(src, bothCamTrigOutput);
+            % add leg camera triggers to output matrix
+            outputMatrix(:, legTrigChInd) = legCamTrig;
+            % add FicTrac camera triggers to output matrix
+            outputMatrix(:, ftTrigChInd) = ftCamTrig;
+            % grab next set of output from current injection
+            iInjStartInd = whichOutScan - startDelayScans;
+            iInjEndInd = whichOutScan + camTrigQueuedScans - ...
+                startDelayScans - 1;
+            outputMatrix(:, iInjChInd) = iInjOut(iInjStartInd:iInjEndInd);
+            
+            queueOutputData(src, outputMatrix);
             
             % save queued output into daqOutput
-            lenOut = size(bothCamTrigOutput,1);
+            lenOut = size(outputMatrix, 1);
             daqOutput(whichOutScan:(whichOutScan + lenOut - 1),:) = ...
-                bothCamTrigOutput;
+                outputMatrix;
         else % when DAQ acquisition is stopped
-            queueOutputData(src, bothCamTrigEnd);
+            queueOutputData(src, outputMatrixEnd);
             
             % save queued output into daqOutput
-            lenOut = size(bothCamTrigEnd,1);
+            lenOut = size(outputMatrixEnd, 1);
             daqOutput(whichOutScan:(whichOutScan + lenOut - 1),:) = ...
-                bothCamTrigEnd;
+                outputMatrixEnd;
         end
         % update whichOutScan for next iteration
         whichOutScan = whichOutScan + lenOut;
@@ -245,7 +318,7 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphys(...
     % get time stamp of approximate experiment start
     inputParams.startTimeStamp = datestr(now, 'HH:MM:SS');
     fprintf('Start time: %s \n', inputParams.startTimeStamp);
-    disp('Starting legvidFictracvidEphys acquisition');
+    disp('Starting legvidFictracvidEphysIInj acquisition');
     
     % ACQUIRE IN BACKGROUND
     

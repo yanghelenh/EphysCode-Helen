@@ -288,7 +288,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphysIInj(...
     % get time stamp of approximate experiment start
     inputParams.startTimeStamp = datestr(now, 'HH:MM:SS');
     fprintf('Start time: %s \n', inputParams.startTimeStamp);
-    disp('Starting legFictracEphys acquisition');
+    disp('Starting legFictracEphysIInj acquisition');
     
     % ACQUIRE IN BACKGROUND
     
