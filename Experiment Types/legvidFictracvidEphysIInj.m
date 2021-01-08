@@ -79,7 +79,7 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     % which input and output data streams used in this experiment
     inputParams.aInCh = {'ampScaledOut', 'ampI', ...
         'amp10Vm', 'ampGain', 'ampFreq', 'ampMode'};
-    inputParams.aOutCh = {};
+    inputParams.aOutCh = {'ampExtCmdIn'};
     inputParams.dInCh = {'ficTracCamFrames', 'legCamFrames'};
     inputParams.dOutCh = {'legCamFrameStartTrig', 'ficTracCamStartTrig'};
     
@@ -289,7 +289,7 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     
     % create listeners for DataAvailable and DataRequired events
     dataAvailLh = addlistener(userDAQ, 'DataAvailable', @collectData);
-    dataReqLh = addlistener(userDAQ, 'DataRequired', @queueCamTrig);
+    dataReqLh = addlistener(userDAQ, 'DataRequired', @queueOut);
     
     % first time leg video is acquired for cell
     %  set up folder for saving leg video, prompt to set up camera
