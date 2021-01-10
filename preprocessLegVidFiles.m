@@ -1,13 +1,14 @@
 % preprocessLegVidFiles.m
 %
-% Function to preprocess raw leg video .tiff files. Call after running
-%  Powershell script(s) to rename all leg video files.
+% Function to preprocess raw leg video .tiff files. 
 % Call on date folder.
+% Does generates and calls powershell script for renaming .tiff files.
 % Does command line call to ffmpeg to generate .mp4 video file for each
 %  trial with leg video data.
 % Generates powershell script and filelist file for zipping .tiff files, 1
 %  zip file for each trial. Generates .bat file for running all powershell
-%  scripts for all trials in date folder
+%  scripts for all trials in date folder. Runs said powershell script
+% Generates script for deleting raw .tiff files. Does not run this.
 %
 % INPUTS:
 %   none, but prompts user to select date folder through gui
@@ -26,6 +27,7 @@
 %   7/16/20 - HHY - break out renaming, zipping, making video to separate
 %       functions, preprocessing to run also on leg vid in preExptTrials
 %   7/29/20 - HHY - fix bugs from breaking out separate functions
+%   1/9/21 - HHY - update function description
 %
 
 function preprocessLegVidFiles()
