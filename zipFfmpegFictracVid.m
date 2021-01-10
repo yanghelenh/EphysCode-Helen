@@ -21,6 +21,8 @@
 %
 % UPDATED:
 %   1/7/21 - HHY
+%   1/9/21 - HHY - some minor bug fixes, from when it was copied from
+%       zipFfmpegLegVid
 %
 function zipFfmpegFictracVid(inputParams, scriptsPath, cellDirPath, ...
     rawFictracVidPath, flyName, cellName, trialName)
@@ -33,7 +35,7 @@ function zipFfmpegFictracVid(inputParams, scriptsPath, cellDirPath, ...
     startFrame = inputParams.startFtVidNum;
     % total number of frames grabbed for this trial
     totFrames = inputParams.endFtVidNum - ...
-        inputParams.startLegVidNum;
+        inputParams.startFtVidNum;
     frameRate = inputParams.ftCamFrameRate;
 
     % zip file name and path

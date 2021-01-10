@@ -2,12 +2,13 @@
 %
 % Function to preprocess raw FicTrac video .tiff files.
 % Call on date folder.
-% Generates Powershell script to rename individual .tiff files. Does 
-%  command line call to ffmpeg to generate .mp4 video file for each
-%  trial with leg video data.
+% Generates and calls powershell script for renaming .tiff files.
+% Does command line call to ffmpeg to generate .mp4 video file for each
+%  trial with FicTrac video data.
 % Generates powershell script and filelist file for zipping .tiff files, 1
 %  zip file for each trial. Generates .bat file for running all powershell
-%  scripts for all trials in date folder
+%  scripts for all trials in date folder. Runs said powershell script
+% Generates script for deleting raw .tiff files. Does not run this.
 % Modification of preprocessLegVidFiles.m
 %
 % INPUTS:
@@ -81,6 +82,7 @@ function preprocessFictracVidFiles()
                 % perform renaming
                 renameStatus = renameFictracVid(rawFictracVidPath, ...
                     scriptsPath, flyDirs(i).name, cellDirs(j).name);
+%                 renameStatus = 0;
                 
                 % if renaming failed, end function here
                 if renameStatus
