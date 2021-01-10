@@ -32,6 +32,7 @@
 %       injection
 %   1/8/21 - HHY - prompt user to record number of FicTrac video frames
 %       grabbed through functions run on FicTrac computer
+%   1/9/21 - HHY - fix bugs in handling output channels
 %
 
 function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
@@ -214,6 +215,7 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     % number of scans to queue initially - delay + initial bout of data
     numScans = startDelayScans + camTrigQueuedScans;
     
+    outputInit = zeros(numScans, totNumOutCh);
     legCamTrigInit = zeros(numScans, 1);
     ftCamTrigInit = zeros(numScans, 1);
     bothCamStartInd = startDelayScans + 1;
@@ -229,15 +231,16 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     % generate trigger pattern for FicTrac camera
     ftCamTrigInit(bothCamStartInd:ftCamFrameRateScans:end) = 1;
     
-    % combine trigger patterns into output matrix
-    trigOutput = [legCamTrigInit ftCamTrigInit];
+    % add camera trigger patterns to outputInit
+    outputInit(:, legTrigChInd) = legCamTrigInit;
+    outputInit(:, ftTrigChInd) = ftCamTrigInit;
     
     % queue output on DAQ
-    userDAQ.queueOutputData(trigOutput);
+    userDAQ.queueOutputData(outputInit);
     
     % save queued output into daqOutput
-    lengthOut = size(trigOutput,1);
-    daqOutput(whichOutScan:(whichOutScan + lengthOut - 1),:) = trigOutput;
+    lengthOut = size(outputInit,1);
+    daqOutput(whichOutScan:(whichOutScan + lengthOut - 1),:) = outputInit;
     % update whichOutScan for next iteration
     whichOutScan = whichOutScan + lengthOut;
     
@@ -255,8 +258,8 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     % output matrix of all zeros, for end
     outputMatrixEnd = zeros(camTrigQueuedScans, totNumOutCh);
     
-    % nested function for queuing more leg camera trigger outputs; called
-    %  by event listener for DataRequired
+    % nested function for queuing more output (camera trigger and current 
+    %  injection; called by event listener for DataRequired
     function queueOut(src, event)
         if ~acqStopBin
             % add leg camera triggers to output matrix
@@ -365,10 +368,10 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     daqOutput = daqOutput(1:userDAQ.ScansAcquired, :);
     
     % display number of leg video frames triggered 
-    numLegVidTrigs = sum(daqOutput(:,1));
+    numLegVidTrigs = sum(daqOutput(:,legTrigChInd));
     fprintf('%d leg video frames triggered.\n', numLegVidTrigs);
     % display number of FicTrac video frames triggered
-    numFtVidTrigs = sum(daqOutput(:,2));
+    numFtVidTrigs = sum(daqOutput(:,ftTrigChInd));
     fprintf('%d FicTrac video frames triggered.\n', numFtVidTrigs);
     disp('Make sure to record number of FicTrac video frames grabbed');
     
