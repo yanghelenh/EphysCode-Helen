@@ -22,6 +22,7 @@
 % UPDATED:
 %   12/16/20 - HHY
 %   1/7/21 - HHY
+%   1/11/21 - HHY - modify to add date to video file name
 %
 
 function preprocessFictracVidFiles()
@@ -107,8 +108,8 @@ function preprocessFictracVidFiles()
                      
                 % generate .mp4 and .zip files for trial
                 zipFfmpegFictracVid(inputParams, scriptsPath, ...
-                    cellDirPath, rawFictracVidPath, flyDirs(i).name, ...
-                    cellDirs(j).name,trialName);
+                    cellDirPath, rawFictracVidPath, dateDirName,...
+                    flyDirs(i).name, cellDirs(j).name,trialName);
                         
             end
         end

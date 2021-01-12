@@ -9,6 +9,7 @@
 %   scriptsPath - full path to where scripts are saved
 %   cellDirPath - full path to where to put zip file
 %   rawFictracVidPath - full path to raw FicTrac videos folder
+%   dateName - name of date directory (YYMMDD)
 %   flyName - name of fly (e.g. fly01)
 %   cellName - name of cell (e.g. cell01)
 %   trialName - name of trial (e.g. trial01)
@@ -23,9 +24,10 @@
 %   1/7/21 - HHY
 %   1/9/21 - HHY - some minor bug fixes, from when it was copied from
 %       zipFfmpegLegVid
+%   1/11/21 - HHY - update to add date folder name
 %
 function zipFfmpegFictracVid(inputParams, scriptsPath, cellDirPath, ...
-    rawFictracVidPath, flyName, cellName, trialName)
+    rawFictracVidPath, dateName, flyName, cellName, trialName)
 
     % some constants
     PATH_7ZIP = 'C:\Program Files\7-Zip\7z.exe';
@@ -86,7 +88,7 @@ function zipFfmpegFictracVid(inputParams, scriptsPath, cellDirPath, ...
     fclose(zipScriptFID);
 
     % file name for fictrac vid mp4
-    fictracVidFName = [flyName '_' ...
+    fictracVidFName = [dateName '_' flyName '_' ...
         cellName '_' trialName ...
         '_fictracVid.mp4'];
     fictracVidPath = [cellDirPath filesep fictracVidFName];
