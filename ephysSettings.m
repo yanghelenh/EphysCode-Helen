@@ -61,7 +61,7 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
 
     % Break out box, channel assignments
     % which analog input channels are used
-    settings.bob.aInChUsed  = [0:5 8:10];
+    settings.bob.aInChUsed  = [0:5 8:12];
     % which digital input channels are used (matrix each row is channel, column
     %  1 is port number, column 2 is line number)
     settings.bob.dInChUsed = [0 5; 0 6; 0 7];
@@ -75,7 +75,8 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     %  to DAQ session; add analog before digital
     settings.bob.aInChAssign = {'ampScaledOut', 'ampI', ...
         'amp10Vm', 'ampGain', 'ampFreq', 'ampMode', ...
-        'ficTracHeading', 'ficTracIntX', 'ficTracIntY'};
+        'ficTracHeading', 'ficTracIntX', 'ficTracIntY', 'panelsDAC0X',...
+        'panelsDAC1Y'};
     settings.bob.dInChAssign = {'ficTracCamFrames', ...
         'scanimageFrameClock', 'legCamFrames'};
     settings.bob.inChAssign = [settings.bob.aInChAssign ...
