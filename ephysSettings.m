@@ -95,7 +95,7 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.bob.aiInType = 'SingleEnded'; 
     % voltage range - for channels, in order in aInChAssign
     settings.bob.aiRange = [-10 10; -10 10; -10 10; -10 10; -10 10; ...
-        -10 10; -10 10; -10 10; -10 10];
+        -10 10; -10 10; -10 10; -10 10; -10 10; -10 10];
 
     % Digital input channel settings
     % digital input type - 'InputOnly', not 'Bidirectional'
