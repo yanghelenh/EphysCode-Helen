@@ -191,8 +191,8 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracEphys(...
     
     % prompt user for whether to run visual stimuli in open or closed loop
     prompt = ['Select the mode the visual stimulus should run in \n' ...
-        'Closed loop, X only (cx)\n Closed loop, Y only (cy)\n' ...
-        'Closed loop, X and Y (cxy)\n Open loop (o)\n'];
+        'Closed loop, X only (cx)\nClosed loop, Y only (cy)\n' ...
+        'Closed loop, X and Y (cxy)\nOpen loop (o)\n'];
     modeAns = input(prompt, 's');
     % set the mode, record it
     % NOTE: check the setting for only 1 channel in closed loop!!
@@ -227,6 +227,7 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracEphys(...
     patternList = patternList(3:end); % remove . and .. from list
     % boolean for whether user has selected a pattern, initialize at 0
     patternSelected = 0;
+    disp('Select a pattern');
     % loop until user selects pattern
     while ~patternSelected
         [patternIndex, patternSelected] = listdlg('ListString', ...
@@ -252,17 +253,19 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracEphys(...
         funcList = funcList(3:end); % remove . and .. from list
         % boolean for whether user has selected an X function, initialize
         xFuncSelected = 0;
+        disp('Select an X function');
         % loop until user selects an x function
         while ~xFuncSelected
             [xFuncIndex, xFuncSelected] = listdlg('ListString', ...
-                funcList, 'PromptString', 'Select a function', ...
+                funcList, 'PromptString', 'Select an X function', ...
                 'SelectionMode', 'single');
         end
         % prompt user for Y function
         yFuncSelected = 0;
+        disp('Select a Y function');
         while ~yFuncSelected
             [yFuncIndex, yFuncSelected] = listdlg('ListString', ...
-                funcList, 'PromptString', 'Select a function', ...
+                funcList, 'PromptString', 'Select a Y function', ...
                 'SelectionMode', 'single');
         end
         % save function names and indices
@@ -287,7 +290,7 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracEphys(...
     end
     
     % send information to visual panels
-    initalizeVisualPanels(panelParams, settings);
+    initalizeVisualPanels(inputParams, settings);
     
     % first time leg video is acquired for cell
     %  set up folder for saving leg video, prompt to set up camera
