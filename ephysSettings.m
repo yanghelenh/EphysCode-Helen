@@ -155,4 +155,32 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     %  pre-expt routine
     settings.sealTestDur = 2; % in sec
     
+    
+    % Visual Panels (G3) 
+    % indicies into X and Y channels of pattern
+    settings.visstim.chNumX = 1;
+    settings.visstim.chNumY = 2;
+    % panels function frequency for X and Y, should be multiple of 50, max
+    %  500
+    settings.visstim.funcfreqX = 200;
+    settings.visstim.funcfreqY = 200;
+    
+    % modes for different types of control of pattern
+    settings.visstim.openloopMode = 4;
+    settings.visstim.closedloopMode = 3;
+    settings.visstim.intfuncMode = 0;
+    
+    % defaults for gain and bias
+    % gain values multiplied by 10 for 'send_gain_bias'
+    settings.visstim.gainFactor = 10; 
+    % bias values multiplied by 20 for 'send_gain_bias'
+    settings.visstim.biasFactor = 20;
+    % default values, not scaled for 'send_gain_bias'
+    settings.visstim.defaultGain = 1; % as a multiplicative factor
+    settings.visstim.defaultBias = 0; % in V
+    
+    % defaults for X and Y functions, when they're not being used
+    settings.vistim.defaultXFunc = 1; % static
+    settings.visstim.defaultYFunc = 1; % static
+    
 end
