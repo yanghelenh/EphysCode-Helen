@@ -38,40 +38,26 @@ function [rawData, inputParams, rawOutput] = visstimVInj(settings, ...
      
     % prompt user to select visual stimulus
     
-    % prompt user for whether to run visual stimuli in open or closed loop
-    prompt = ['Select the mode the visual stimulus should run in \n' ...
-        'Closed loop, X only (cx)\nClosed loop, Y only (cy)\n' ...
-        'Closed loop, X and Y (cxy)\nOpen loop (o)\n'];
-    modeAns = input(prompt, 's');
-    % set the mode, record it
-    % NOTE: check the setting for only 1 channel in closed loop!!
-    switch modeAns
-        case 'cx'
-            inputParams.visstimMode = 'closedLoopX';
-            inputParams.panelMode = [settings.visstim.closedloopMode, ...
-                settings.visstim.intfuncMode];
+    % Prompt user for visual stimulus input variables
+    visstimParams = visstimUserPrompts(settings);
+    
+    % send information to visual panels
+    initalizeVisualPanels(visstimParams, settings);
+    
+    % merge visual stimulus parameters into inputParams struct
+    inputParams = mergeStructs(inputParams, visstimParams);
+    
+    % select correct analog output channels depending on which type of
+    %  closed loop
+    switch inputParams.visstimMode
+        case 'closedLoopX'
             inputParams.aOutCh = {'ampExtCmdIn'};
-        case 'cy'
-            inputParams.visstimMode = 'closedLoopY';
-            inputParams.panelMode = [settings.visstim.intfuncMode, ...
-                settings.visstim.closedloopMode];
+        case 'closedLoopY'
             inputParams.aOutCh ={'aOut1'};
-        case 'cxy'
-            inputParams.visstimMode = 'closedLoopXY';
-            inputParams.panelMode = [settings.visstim.closedloopMode, ...
-                settings.visstim.closedloopMode];
+        case 'closedLoopXY'
             inputParams.aOutCh = {'ampExtCmdIn', 'aOut1'};
-        case 'o'
-            inputParams.visstimMode = 'openLoop';
-            inputParams.panelMode = [settings.visstim.openloopMode, ...
-                settings.visstim.openloopMode];
+        case 'openLoop'
             inputParams.aOutCh = {};
-        otherwise
-            disp('Improper input, defaulting to closedLoopXY');
-            inputParams.visstimMode = 'closedLoopXY';
-            inputParams.panelMode = [settings.visstim.closedloopMode, ...
-                settings.visstim.closedloopMode];
-            inputParams.aOutCh = {'ampExtCmdIn', 'aOut1'};
     end
     
     % initialize DAQ, including channels
@@ -82,33 +68,7 @@ function [rawData, inputParams, rawOutput] = visstimVInj(settings, ...
     
     % trial duration in scans
     durScans = duration * userDAQ.Rate;
-    
-    % prompt for pattern, by selecting from list
-    % get list of patterns (from list of files in pattern directory)
-    patternFiles = dir(vsPatternsDir());
-    patternList = {patternFiles.name};
-    patternList = patternList(3:end); % remove . and .. from list
-    % boolean for whether user has selected a pattern, initialize at 0
-    patternSelected = 0;
-    disp('Select a pattern');
-    % loop until user selects pattern
-    while ~patternSelected
-        [patternIndex, patternSelected] = listdlg('ListString', ...
-            patternList, 'PromptString', 'Select a pattern', ...
-            'SelectionMode', 'single');
-    end
-    % save pattern name and index
-    inputParams.patternName = patternList(patternIndex);
-    inputParams.patternIndex = patternIndex;
-    
-    % prompt user for initial pattern position, as [X,Y]
-    prompt = 'Initial pattern position [x,y]: ';
-    initPatternPos = str2num(input(prompt, 's'));
-    inputParams.initPatternPos = initPatternPos;
-    
-    % initialize visual panels
-    initalizeVisualPanels(inputParams, settings);
-        
+  
     % path to current injection protocol functions
     vPath = vInjDir();
     
