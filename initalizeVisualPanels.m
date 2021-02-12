@@ -26,6 +26,7 @@
 %
 % UPDATED:
 %   2/10/21 - HHY
+%   2/11/21 - HHY - fix typos
 %
 
 function initalizeVisualPanels(panelParams, settings)
@@ -58,7 +59,7 @@ function initalizeVisualPanels(panelParams, settings)
     % otherwise, use default X position function
     else
         Panel_com('set_posfunc_id', ...
-            [settings.visstim.chNumX, settings.vistim.defaultXFunc]);
+            [settings.visstim.chNumX, settings.visstim.defaultXFunc]);
         pause(.03);
     end
     % if there is a specified Y position function
@@ -69,7 +70,7 @@ function initalizeVisualPanels(panelParams, settings)
     % otherwise, use default Y position function
     else
         Panel_com('set_posfunc_id', ...
-            [settings.visstim.chNumY, settings.vistim.defaultYFunc]);
+            [settings.visstim.chNumY, settings.visstim.defaultYFunc]);
         pause(.03);
     end
 

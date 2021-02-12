@@ -16,6 +16,8 @@
 %   1/21/20 - HHY
 %   7/22/20 - HHY - add zero values for zero current/voltage command from
 %       DAQ, to compensate for standing voltage delivered
+%   2/11/21 - HHY - updates for visual stimulus presentation
+%
 
 function [dataDir, exptFnDir, settings] = ephysSettings()
 
@@ -66,7 +68,7 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     %  1 is port number, column 2 is line number)
     settings.bob.dInChUsed = [0 5; 0 6; 0 7];
     % which analog output channels are used (currently, none)
-    settings.bob.aOutChUsed = [0];
+    settings.bob.aOutChUsed = [0:1];
     % which digital output channels are used (notation as above)
     settings.bob.dOutChUsed = [0 0; 0 1; 0 2; 0 3; 0 4];
 
@@ -82,7 +84,7 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.bob.inChAssign = [settings.bob.aInChAssign ...
         settings.bob.dInChAssign];
     % output channel assignments (notation like input, above)
-    settings.bob.aOutChAssign = {'ampExtCmdIn'};
+    settings.bob.aOutChAssign = {'ampExtCmdIn', 'aOut1'};
     settings.bob.dOutChAssign = {'scanimageAcqStart', 'scanimageAcqStop',...
         'scanimageNextFile','legCamFrameStartTrig', 'ficTracCamStartTrig'};
     settings.bob.outChAssign = [settings.bob.aOutChAssign ...
@@ -107,7 +109,8 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     % analog output as 'SingleEnded'
     settings.bob.aoOutType = 'SingleEnded';
     % voltage range - for channels, in order of aOutChAssign
-    settings.bob.aoRange = [-5 5];
+%     settings.bob.aoRange = [-5 5];
+    settings.bob.aoRange = [-10 10; -10 10]; % just for testing
     
     % Digital output channel settings
     % digital output type - 'OutputOnly', not 'Bidirectional'
@@ -162,8 +165,8 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.visstim.chNumY = 2;
     % panels function frequency for X and Y, should be multiple of 50, max
     %  500
-    settings.visstim.funcfreqX = 200;
-    settings.visstim.funcfreqY = 200;
+    settings.visstim.funcfreqX = 50;
+    settings.visstim.funcfreqY = 50;
     
     % modes for different types of control of pattern
     settings.visstim.openloopMode = 4;
@@ -180,7 +183,7 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.visstim.defaultBias = 0; % in V
     
     % defaults for X and Y functions, when they're not being used
-    settings.vistim.defaultXFunc = 1; % static
+    settings.visstim.defaultXFunc = 1; % static
     settings.visstim.defaultYFunc = 1; % static
     
 end

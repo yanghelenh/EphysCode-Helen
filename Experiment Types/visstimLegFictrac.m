@@ -1,10 +1,9 @@
-% visstimLegFictracEphys.m
+% visstimLegFictrac.m
 %
 % Experimental Function
 % For simultaneous presentation of visual stimuli on G3 panels and 
-%  acquisition of leg video, FicTrac, and electrophysiology recording.
+%  acquisition of leg video and FicTrac behavior data.
 % Uses background acquisition on DAQ
-% No current injection; use visstimLegFictracEphysIInj() instead
 %
 % INPUTS:
 %   settings - struct of ephys setup settings, from ephysSettings()
@@ -17,12 +16,12 @@
 %   rawOutput - raw output sent by DAQ, matrix where each column is
 %       different channel
 %
-% CREATED: 2/8/21 - HHY
+% CREATED: 2/11/21 - HHY
 %
 % UPDATED:
-%   2/11/21 - HHY - bug fixes; now tested and works
+%   2/11/21
 %
-function [rawData, inputParams, rawOutput] = visstimLegFictracEphys(...
+function [rawData, inputParams, rawOutput] = visstimLegFictrac(...
     settings, duration)
 
     % Initialize global variable for raw data collection
@@ -49,7 +48,7 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracEphys(...
     whichOutScan = 1; % start at 1
 
     % EXPERIMENT-SPECIFIC PARAMETERS
-    inputParams.exptCond = 'visstimLegFictracEphys'; % name of trial type
+    inputParams.exptCond = 'visstimLegFictrac'; % name of trial type
     % leg tracking camera frame rate - make sure it's a whole number of
     %  DAQ scans
     legCamFrameRate = 250; % in Hz
@@ -58,10 +57,8 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracEphys(...
         legCamFrameRateScans;
     
     % which input and output data streams used in this experiment
-    inputParams.aInCh = {'ampScaledOut', 'ampI', ...
-        'amp10Vm', 'ampGain', 'ampFreq', 'ampMode', ...
-        'ficTracHeading', 'ficTracIntX', 'ficTracIntY', 'panelsDAC0X',...
-        'panelsDAC1Y'};
+    inputParams.aInCh = {'ficTracHeading', 'ficTracIntX', ...
+        'ficTracIntY', 'panelsDAC0X', 'panelsDAC1Y'};
     inputParams.aOutCh = {};
     inputParams.dInCh = {'ficTracCamFrames', 'legCamFrames'};
     inputParams.dOutCh = {'legCamFrameStartTrig'};
@@ -274,7 +271,7 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracEphys(...
         inputParams.yFuncName = funcList(yFuncIndex);
         inputParams.yFuncIndex = yFuncIndex;
     end
-        
+    
     % send information to visual panels
     initalizeVisualPanels(inputParams, settings);
     
@@ -306,7 +303,7 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracEphys(...
     % get time stamp of approximate experiment start
     inputParams.startTimeStamp = datestr(now, 'HH:MM:SS');
     fprintf('Start time: %s \n', inputParams.startTimeStamp);
-    disp('Starting visstimLegFictracEphys acquisition');
+    disp('Starting visstimLegFictrac acquisition');
     
     % ACQUIRE IN BACKGROUND
     userDAQ.startBackground();

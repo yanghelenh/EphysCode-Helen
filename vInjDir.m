@@ -23,14 +23,14 @@ function vPath = vInjDir()
 
     %  Set the paths according to whether we are on the MAC or PC
     if strcmp(comptype, PC_STRING) % WINDOWS path
-        iPath = ...
+        vPath = ...
             'C:\Users\WilsonLab\Documents\HelenExperimentalCode\EphysCode-Helen\Experiment Types\Voltage Protocols';
-        addpath(iPath);
+        addpath(vPath);
     elseif strcmp(comptype, MAC_STRING) % MACBOOK PRO path
-        iPath = '/Users/hyang/Documents/EphysCode-Helen/Experiment Types/Current Injection';     
-        addpath(iPath);
+        vPath = '/Users/hyang/Documents/EphysCode-Helen/Experiment Types/Voltage Protocols';     
+        addpath(vPath);
     else 
         % if neither computer types throw error
-        error('ERROR: current injection folder not found that matches this computer type');
+        error('ERROR: voltage injection folder not found that matches this computer type');
     end
 end
