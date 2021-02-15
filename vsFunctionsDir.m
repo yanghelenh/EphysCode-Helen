@@ -31,6 +31,6 @@ function vspPath = vsFunctionsDir()
         addpath(vspPath);
     else 
         % if neither computer types throw error
-        error('ERROR: current injection folder not found that matches this computer type');
+        error('ERROR: Visual stimuli functions folder not found that matches this computer type');
     end
 end
