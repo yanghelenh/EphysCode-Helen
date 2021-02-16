@@ -73,7 +73,7 @@ function [rawData, inputParams, rawOutput] = visstimEphys(settings, ...
     rawData = userDAQ.startForeground();
     
     % stop visual panels
-    Panel_com('end');
+    Panel_com('stop');
 
     disp('Data acquired');
 end
