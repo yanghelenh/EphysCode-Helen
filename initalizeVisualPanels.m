@@ -45,9 +45,9 @@ function initalizeVisualPanels(panelParams, settings)
     pause(.03);
 
     % set function frequencies for X and Y channels
-    Panel_com('set_funcx_freq', settings.visstim.funcfreqX);
+    Panel_com('set_funcx_freq', settings.visstim.funcfreq);
     pause(.03);
-    Panel_com('set_funcy_freq', settings.visstim.funcfreqX);
+    Panel_com('set_funcy_freq', settings.visstim.funcfreq);
     pause(.03);
 
     % set position functions for X and Y channels

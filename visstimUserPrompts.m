@@ -25,9 +25,13 @@
 %
 % UPDATED:
 %   2/11/21 - HHY
+%   2/14/21 - HHY - add list size (b/c pattern and function names too long
 %
 
 function visstimParams = visstimUserPrompts(settings)
+
+    % list size for pattern and function selection [width, height]
+    listSize = [500,500];
 
     % prompt user for whether to run visual stimuli in open or closed loop
     prompt = ['Select the mode the visual stimulus should run in \n' ...
@@ -72,7 +76,7 @@ function visstimParams = visstimUserPrompts(settings)
     while ~patternSelected
         [patternIndex, patternSelected] = listdlg('ListString', ...
             patternList, 'PromptString', 'Select a pattern', ...
-            'SelectionMode', 'single');
+            'SelectionMode', 'single', 'ListSize', listSize);
     end
     % save pattern name and index
     visstimParams.patternName = patternList(patternIndex);
@@ -98,7 +102,7 @@ function visstimParams = visstimUserPrompts(settings)
         while ~xFuncSelected
             [xFuncIndex, xFuncSelected] = listdlg('ListString', ...
                 funcList, 'PromptString', 'Select an X function', ...
-                'SelectionMode', 'single');
+                'SelectionMode', 'single', 'ListSize', listSize);
         end
         % prompt user for Y function
         yFuncSelected = 0;
@@ -106,7 +110,7 @@ function visstimParams = visstimUserPrompts(settings)
         while ~yFuncSelected
             [yFuncIndex, yFuncSelected] = listdlg('ListString', ...
                 funcList, 'PromptString', 'Select a Y function', ...
-                'SelectionMode', 'single');
+                'SelectionMode', 'single', 'ListSize', listSize);
         end
         % save function names and indices
         visstimParams.xFuncName = funcList(xFuncIndex);

@@ -17,6 +17,8 @@
 %   7/22/20 - HHY - add zero values for zero current/voltage command from
 %       DAQ, to compensate for standing voltage delivered
 %   2/11/21 - HHY - updates for visual stimulus presentation
+%   2/15/21 - HHY - visual stimuli function frequency, only 1 value (same
+%       for X and Y)
 %
 
 function [dataDir, exptFnDir, settings] = ephysSettings()
@@ -165,8 +167,7 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.visstim.chNumY = 2;
     % panels function frequency for X and Y, should be multiple of 50, max
     %  500
-    settings.visstim.funcfreqX = 50;
-    settings.visstim.funcfreqY = 50;
+    settings.visstim.funcfreq = 200;
     
     % modes for different types of control of pattern
     settings.visstim.openloopMode = 4;
