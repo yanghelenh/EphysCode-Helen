@@ -15,7 +15,12 @@ meanLum = 3;
 darkLum = 0;
 lightLum = 7;
 
-degPerLED = 2.8; % angular size of LED, given arena diameter of 12 cm
+% arena diameter, in cm
+arenaDiam = 12;
+
+% angular size of LED, given arena diameter of 12 cm; does not account for
+%  gap between LEDs
+degPerLED = 2.8; 
 
 % size of arena, in panels
 numHorizPanels360 = 12; % number of panels, if arena were full 360
@@ -610,3 +615,121 @@ pattern.data = Make_pattern_vector(pattern);
 
 % save pattern
 save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 11: Dark looming disc off of gray, 2 px to 16 px diameter
+% X encodes disc size, Y encodes azimuthal angle (all discs centered at
+%  elevation midline)
+% To pair with open loop position function for different loom speeds
+% Azimuthal locations, LEDs: 12 (left side), 24 (front left), 36 (front), 
+%  48 (front right), 60 (right)
+
+% Pattern Name
+patternName = 'Pattern_011_darkDiscLoom_2-16px_L-FL-F-FR-R_mid';
+
+% Parameters
+% loom start positions in azimuth, in LED pixels, 1 indexing
+loomDirPx = [12, 24, 36, 48, 60];
+numLoomDir = length(loomDirPx);
+
+% loom start position, elevation
+loomElePx = 8; % midline
+
+% minimum disc diameter, in pixels
+minDiscDiamPx = 2;
+% maximum disc diameter, in pixels
+maxDiscDiamPx = 16;
+
+% Y indicies
+yMeanLum = numLoomDir + 1;
+yAllOff = numLoomDir + 2;
+
+% Pattern basic info
+% all start positions, plus one for fully gray and one for fully dark
+pattern.y_num = numLoomDir + 2; 
+
+pattern.num_panels = numHorizPanels360 * numVertPanels;
+pattern.gs_val = gsVal;
+
+
+% Build pattern
+
+
+% conversion from LED pixels to degrees, including gaps
+degPerPxFull = 360 / numHorizLEDs360;
+
+% loom start position, in degrees
+loomDirDeg = loomDirPx .* degPerPxFull;
+loomEleDeg = loomElePx * degPerPxFull;
+
+% disc min and max diameter, in degrees
+minDiscDiamDeg = minDiscDiamPx * degPerPxFull;
+maxDiscDiamDeg = maxDiscDiamPx * degPerPxFull;
+
+% call makeDiscImgSeries() once; get disc diameters, number of imgs
+[discImgs, discDiams] = makeDiscImgSeries(numHorizLEDs360, numVertLEDs,...
+    degPerPxFull, loomDirDeg(1), loomEleDeg, minDiscDiamDeg, ...
+    maxDiscDiamDeg);
+% number of images determines size X
+pattern.x_num = length(discDiams);
+
+% initialize array, gray
+Pats = ones(numVertLEDs, numHorizLEDs360, pattern.x_num, ...
+    pattern.y_num) * meanLum;
+
+
+% generate disc pattern for each start position
+for i = 1:numLoomDir
+    
+    tempPat = ones(numVertLEDs, numHorizLEDs360, pattern.x_num, 1) * ...
+        meanLum;
+
+    % returns whether each location is part of disc or not
+    [discImgs, ~] = makeDiscImgSeries(numHorizLEDs360, numVertLEDs,...
+        degPerPxFull, loomDirDeg(i), loomEleDeg, minDiscDiamDeg, ...
+        maxDiscDiamDeg);
+    
+    tempPat(discImgs) = darkLum;
+    
+    Pats(:,:,:,i) = tempPat;
+end
+
+% add gray and dark patterns
+Pats(:,:,:,yMeanLum) = meanLum;
+Pats(:,:,:,yAllOff) = darkLum;
+
+% put data in structure
+pattern.Pats = Pats; 		 
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 12 - 2 LED wide light vertical bar, starfield on gray,
+% regular direction
+% Bar position encoded in X, starfield moves front to back in Y, frontal
+%  region (1 panel, 30 deg) gray with no stars
+
+% Pattern Name
+patternName = 'Pattern_012_2pxLightVertBarStarfieldOnGray360Reg';
+
+% Parameters
+ballDiam = 0.646; % diameter of FicTrac ball, in cm
+
+barWidth = 2; % in LEDs
+starSize = [1, 2]; % star size, in LEDs [v,h]
+starDensity = 0.25; % density of stars, as percentage of field
+% horiz LED coordinates of front gray area, 1 indexing
+frontGrayInd = [33 40]; 
+% horiz indicies of left and right fields, 1 indexing
+indLeftField = [1 36];
+indRightField = [37 72];
+
+% luminances of different portions
+bkgdLum = meanLum;
+starLum = lightLum;
+barLum = lightLum;
+
+

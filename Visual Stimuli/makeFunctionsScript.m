@@ -47,7 +47,7 @@ save([vsFunctionsDir() filesep funcName '.mat'], 'func');
 % pairs with patterns 9 and 10
 
 XFuncName = 'position_function_002_X_grayStaticRotatingGrating20-60-180-300';
-YFuncName = 'position_function_002_Y_grayStaticRotatingGrating20-60-180-300';
+YFuncName = 'position_function_003_Y_grayStaticRotatingGrating20-60-180-300';
 
 
 % velocities of grating, in degrees per second
@@ -178,4 +178,172 @@ yFunc = repmat(oneYTrial, 1, numTrials);
 func = xFunc;
 save([vsFunctionsDir() filesep XFuncName '.mat'], 'func');
 func = yFunc;
+save([vsFunctionsDir() filesep YFuncName '.mat'], 'func');
+
+%% Functions 004 and 005 - X and Y functions for dark looming disc
+% gray, disc on static (small), disc loom, disc on static (big), gray
+% psuedorandom sequence of loom speeds (different r/v ratios) and loom
+%  directions
+% pairs with pattern 11
+
+XFuncName = 'position_function_004_X_darkLoom_allDir_rv10-40-70-130-310-550';
+YFuncName = 'position_function_005_Y_darkLoom_allDir_rv10-40-70-130-310-550';
+
+
+% r/v ratios, in seconds
+rvRatios = [.010 .070 .130 .310 .550];
+numRVs = length(rvRatios);
+
+% loom directions (0 indexing into Y dimension of pattern 11)
+numLoomDirs = 5;
+loomDirs = 0:(numLoomDirs - 1);
+
+% Y indicies for all gray, all dark
+yMeanLum = numLoomDirs;
+yAllOff = numLoomDirs + 1;
+
+% deg per pixel, with gap
+degPerPxFull = 360 / numHorizLEDs360;
+
+% loom start positions in azimuth, in LED pixels, 1 indexing
+loomDirPx = [12, 24, 36, 48, 60];
+% loom start position, elevation
+loomElePx = 8; % midline
+% loom start position, in degrees
+loomDirDeg = loomDirPx .* degPerPxFull;
+loomEleDeg = loomElePx * degPerPxFull;
+
+% minimum disc diameter, in pixels
+minDiscDiamPx = 2;
+% maximum disc diameter, in pixels
+maxDiscDiamPx = 16;
+% disc min and max diameter, in degrees
+minDiscDiamDeg = minDiscDiamPx * degPerPxFull;
+maxDiscDiamDeg = maxDiscDiamPx * degPerPxFull;
+
+% number of repeats to encode in this function
+numReps = 5; 
+
+% duration of gray and static periods, in seconds
+durGrayStart = 0.5;
+durStaticStart = 0.5;
+durStaticEnd = 0.2;
+durGrayEnd = 0.5;
+
+% durations in frames
+durGrayStartFr = round(durGrayStart * settings.visstim.funcfreq);
+durStaticStartFr = round(durStaticStart * settings.visstim.funcfreq);
+durStaticEndFr = round(durStaticEnd * settings.visstim.funcfreq);
+durGrayEndFr = round(durGrayEnd * settings.visstim.funcfreq);
+
+% call same makeDiscImgSeries() function as patterns, need discDiams for
+%  each img in X
+[~, discDiams] = makeDiscImgSeries(numHorizLEDs360, ...
+    numVertLEDs, degPerPxFull, loomDirDeg(1), loomEleDeg, ...
+    minDiscDiamDeg, maxDiscDiamDeg);
+
+% min X index, accounting for 0 indexing
+minXInd = 0;
+
+% max X index, accounting for 0 indexing
+maxXInd = length(discDiams) - 1;
+
+
+% initialize - position function for each r/v, dir pair into cell array,
+%  for later randomization
+xFunc = {};
+yFunc = {};
+
+% initialize counter for total number of frames across all trials
+numFrames = 0;
+
+% loop through all r/v ratios, all directions
+for i = 1:numRVs
+    
+    % for this r/v ratio, determine disc size in degrees at each time point
+    [discSizeTime, ~] = findDiscSizesLoom(rvRatios(i), minDiscDiamDeg, ...
+        maxDiscDiamDeg, 1/settings.visstim.funcfreq);
+    
+    % flip discSizeTime, as it's in time before collision and therefore
+    %  starts with biggest disc
+    discSizeTime = fliplr(discSizeTime);
+    
+    % preallocate
+    discXInd = zeros(1, length(discSizeTime));
+    
+    % using discDiams for each image in X, determine indexing into X for
+    %  this time series
+    for l = 1:length(discSizeTime)
+        % index of disc that is closest in size, rounding down (to update
+        %  disc, has to be larger)
+        ind = find(discSizeTime(l) >= discDiams, 1, 'last'); 
+        
+        % account for 0 indexing
+        discXInd(l) = ind - 1;  
+    end
+    
+    % loop through all loom directions, generate position function sequence
+    for j = 1:numLoomDirs
+        % gray at start of trial
+        xThisTrial = ones(1, durGrayStartFr) * minXInd;
+        yThisTrial = ones(1, durGrayStartFr) * yMeanLum;
+        
+        % static disc, min size
+        xThisTrial = [xThisTrial (ones(1, durStaticStartFr) * minXInd)];
+        yThisTrial = [yThisTrial (ones(1, durStaticStartFr) * loomDirs(j))];
+        
+        % looming disc
+        xThisTrial = [xThisTrial discXInd];
+        yThisTrial = [yThisTrial (ones(1, length(discXInd)) * loomDirs(j))];
+        
+        % static disc, max size
+        xThisTrial = [xThisTrial (ones(1, durStaticEndFr) * maxXInd)];
+        yThisTrial = [yThisTrial (ones(1, durStaticEndFr) * loomDirs(j))];
+        
+        % gray at end of trial
+        xThisTrial = [xThisTrial (ones(1, durGrayEndFr) * maxXInd)];
+        yThisTrial = [yThisTrial (ones(1,durGrayEndFr) * yMeanLum)];
+        
+        % save these into cell array
+        xFunc = [xFunc {xThisTrial}]; % {xFunc{:} xThisTrial};
+        yFunc = [yFunc {yThisTrial}]; % {yFunc{:} yThisTrial};
+        
+        % increment numFrames counter
+        numFrames = numFrames + length(xThisTrial);
+    end
+end
+
+% generate position function by making one array withpseudorandom order of 
+%  these trials
+numTrialsPerRep = length(xFunc);
+
+% preallocate
+xFuncArray = zeros(1, numFrames * numReps);
+yFuncArray = zeros(1, numFrames * numReps);
+
+% counter to keep track of start index of trial
+trialStartInd = 1;
+
+for i = 1:numReps
+    % generate random ordering of trial indicies
+    trialOrder = randperm(numTrialsPerRep);
+    
+    % append each trial to position function vector
+    for j = 1:length(trialOrder)
+        % end index of trial depends on trial length
+        trialEndInd = trialStartInd + length(xFunc{trialOrder(j)}) - 1;
+        
+        % add to position vector
+        xFuncArray(trialStartInd:trialEndInd) = xFunc{trialOrder(j)};
+        yFuncArray(trialStartInd:trialEndInd) = yFunc{trialOrder(j)};
+        
+        % update start index for next trial
+        trialStartInd = trialEndInd + 1;
+    end
+end
+
+% save X and Y functions
+func = xFuncArray;
+save([vsFunctionsDir() filesep XFuncName '.mat'], 'func');
+func = yFuncArray;
 save([vsFunctionsDir() filesep YFuncName '.mat'], 'func');

@@ -22,7 +22,7 @@
 % OUTPUTS:
 %   discImgs - 3D array of disc images [v,h,numDiscs]; each [v,h] is
 %     single disc; circles go from min to max size; 1 for part of disc, 0
-%     for not part of disc
+%     for not part of disc, as logical array
 %  	discDiams - vector of length numDiscs that specifies diameter of each
 %  	  disc (represents minimum diameter, to resolution 1/10th of degPerPx)
 %
@@ -30,6 +30,7 @@
 %
 % UPDATED:
 %   2/16/21 - HHY
+%   2/18/21 - HHY - output discImgs to logical
 %
 
 function [discImgs, discDiams] = makeDiscImgSeries(numPxHoriz, ...
@@ -88,6 +89,7 @@ function [discImgs, discDiams] = makeDiscImgSeries(numPxHoriz, ...
     
     % remove non-unique disc images
     discImgs(:,:,nonUniqueDisc) = [];
+    discImgs = logical(discImgs);
     
     % get corresponding diameters
     discDiams = discDiamsAll;
