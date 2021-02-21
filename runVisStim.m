@@ -47,7 +47,7 @@ function runVisStim()
     while 1
         % if any key on keyboard is pressed, initialize stopping of
         %  acquisition; or if specified duration of acquisition is reached
-        if ((KbCheck) || (endTime < datetime('now')))
+        if ((KbCheck) | (endTime < datetime('now')))
             disp('Stopping visual stimulus with key press');
             break; % stop loop            
         end
