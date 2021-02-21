@@ -40,6 +40,8 @@ function runVisStim()
     % experiment end time (based on duration
     endTime = startTime + durSec;
     
+    disp('Starting visual stimulus');
+    
     % start visual panels
     Panel_com('start');
     
@@ -47,9 +49,12 @@ function runVisStim()
     while 1
         % if any key on keyboard is pressed, initialize stopping of
         %  acquisition; or if specified duration of acquisition is reached
-        if ((KbCheck) | (endTime < datetime('now')))
+        if (KbCheck)
             disp('Stopping visual stimulus with key press');
-            break; % stop loop            
+            break; % stop loop     
+        elseif ((endTime < datetime('now')))
+            disp('Stopping visual stimulus because run for duration');
+            break;
         end
         % this loop doesn't need to go that quickly to register keyboard
         %  presses
