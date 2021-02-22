@@ -27,7 +27,7 @@ function runVisStim()
     prompt = 'Duration to play visual stimulus (s): ';
     dur = input(prompt, 's');
     % convert duration to datetime format
-    durSec = seconds(double(dur));
+    durSec = seconds(str2num(dur));
     
     % prompt user for visual stimulus parameters
     visstimParams = visstimUserPrompts(settings);
