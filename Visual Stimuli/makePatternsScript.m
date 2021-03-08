@@ -50,6 +50,8 @@ pattern.Panel_map = [9, 12, 13, 15, 17, 14, 16, 18, 8 , 19, 20, 21; ...
 % X encodes position of bar
 % Y encodes: 1 - bar displayed, 2 - all panels mean lum, 3 - all panels
 %  dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_001_2pxLightVertBarOnGray360Reg';
@@ -107,6 +109,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 % X encodes position of bar
 % Y encodes: 1 - bar displayed, 2 - all panels mean lum, 3 - all panels
 %  dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_002_2pxLightVertBarOnGray360Inv';
@@ -163,6 +167,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 %
 % X encodes position of bar
 % Y encodes: 1 - bar displayed, 2 - all panels dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_003_2pxLightVertBarOnDark360Reg';
@@ -217,6 +223,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 %
 % X encodes position of bar
 % Y encodes: 1 - bar displayed, 2 - all panels dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_004_2pxLightVertBarOnDark360Inv';
@@ -272,6 +280,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 % X encodes position of bar
 % Y encodes: 1 - bar displayed, 2 - all panels mean lum, 3 - all panels
 %  dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_005_2pxDarkVertBarOnGray360Reg';
@@ -329,6 +339,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 % X encodes position of bar
 % Y encodes: 1 - bar displayed, 2 - all panels mean lum, 3 - all panels
 %  dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_006_2pxDarkVertBarOnGray360Inv';
@@ -386,6 +398,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 % X encodes position of bar
 % Y encodes: 1 - bar displayed, 2 - all panels mean lum, 3 - all panels
 %  dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_007_4pxDarkVertBarOnGray360Reg';
@@ -443,6 +457,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 % X encodes position of bar
 % Y encodes: 1 - bar displayed, 2 - all panels mean lum, 3 - all panels
 %  dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_008_4pxDarkVertBarOnGray360Inv';
@@ -500,6 +516,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 % X encodes position of grating
 % Y encodes: 1 - grating displayed, 2 - all panels mean lum, 3 - all panels
 %  dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_009_4pxLightDarkSquareGrating360Reg';
@@ -561,6 +579,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 % X encodes position of grating
 % Y encodes: 1 - grating displayed, 2 - all panels mean lum, 3 - all panels
 %  dark
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_010_4pxLightDarkSquareGrating360Inv';
@@ -622,6 +642,8 @@ save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 % To pair with open loop position function for different loom speeds
 % Azimuthal locations, LEDs: 12 (left side), 24 (front left), 36 (front), 
 %  48 (front right), 60 (right)
+%
+% Last Updated: 2/21/21
 
 % Pattern Name
 patternName = 'Pattern_011_darkDiscLoom_2-16px_L-FL-F-FR-R_mid';
@@ -707,13 +729,798 @@ pattern.data = Make_pattern_vector(pattern);
 % save pattern
 save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
 
-%% Pattern 12 - 2 LED wide light vertical bar, starfield on gray,
+%% Pattern 12: 2 LED wide light vertical bar in X, 4 LED wide grating in Y,
+%  360 deg arena, regular direction
+% Bar position encoded in X
+% Y encodes dark, gray, all grating positions
+% Meant for closed loop bar, open loop optomotor grating
+%
+% Last Updated: 3/4/21
+
+% Pattern Name
+patternName = 'Pattern_012_2pxLightVertBarX_4pxLightDarkSquareGratingY_360Reg';
+
+% Parameters
+barWidth = 2; % number of LED dots wide
+stripeWidth = 4; % number of LED dots wide each light/dark stripe is
+
+% indicies for Y options
+yBarDisp = 1;
+yMeanLum = 2;
+yAllOff = 3;
+% one period of grating is 2X width of single stripe; start indicies after
+%  other options
+yGratingInd = (1:(stripeWidth * 2)) + yAllOff;
+
+% Pattern basic info
+pattern.x_num = numHorizLEDs360; 
+pattern.y_num = yGratingInd(end); % end index is number of options
+
+pattern.num_panels = numHorizPanels360 * numVertPanels;
+pattern.gs_val = gsVal;
+
+% Build Pattern
+
+% initialize array
+Pats = zeros(numVertLEDs, numHorizLEDs360, pattern.x_num, pattern.y_num);
+
+% bar pattern for 1 X,Y
+% initalize full screen at mean luminance
+barPattern = ones(numVertLEDs, numHorizLEDs360) * meanLum;
+% add bar at smallest v coordinates
+barStartPos = 1;
+barPattern(:, barStartPos:(barWidth + barStartPos - 1)) = lightLum;
+
+% make grating pattern, start with dark
+% single dark, light stripe pair
+onePeriod = ones(numVertLEDs, 2*stripeWidth);
+onePeriod(:,1:stripeWidth) = darkLum;
+onePeriod(:,(stripeWidth+1):(stripeWidth*2)) = lightLum;
+
+% repeat single period to fill whole arena
+numReps = numHorizLEDs360 / (2*stripeWidth);
+gratingPattern = repmat(onePeriod, 1, numReps);
+
+% loop over all X
+for i = 1:numHorizLEDs360
+    % shift bar pattern 1 LED to left
+    Pats(:,:,i,yBarDisp) = ShiftMatrix(barPattern, i-1, horizShiftReg,'y');
+    
+    % loop over all grating Y values for this X
+    for j = 1:length(yGratingInd)
+        thisYInd = yGratingInd(j);
+        % shift grating pattern 1 LED to left, to make full period
+        Pats(:,:,i,thisYInd) = ShiftMatrix(gratingPattern, j-1, ...
+            horizShiftReg, 'y');
+    end  
+end
+
+% Set pattern values for other Y options
+Pats(:,:,:,yMeanLum) = meanLum;
+Pats(:,:,:,yAllOff) = darkLum;
+
+% put data in structure
+pattern.Pats = Pats; 		 
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 13: 2 LED wide light vertical bar in X, 4 LED wide grating in Y,
+%  360 deg arena, inverted direction
+% Bar position encoded in X
+% Y encodes dark, gray, all grating positions
+% Meant for closed loop bar, open loop optomotor grating
+%
+% Last Updated: 3/4/21
+
+% Pattern Name
+patternName = 'Pattern_013_2pxLightVertBarX_4pxLightDarkSquareGratingY_360Inv';
+
+% Parameters
+barWidth = 2; % number of LED dots wide
+stripeWidth = 4; % number of LED dots wide each light/dark stripe is
+
+% indicies for Y options
+yBarDisp = 1;
+yMeanLum = 2;
+yAllOff = 3;
+% one period of grating is 2X width of single stripe; start indicies after
+%  other options
+yGratingInd = (1:(stripeWidth * 2)) + yAllOff;
+
+% Pattern basic info
+pattern.x_num = numHorizLEDs360; 
+pattern.y_num = yGratingInd(end); % end index is number of options
+
+pattern.num_panels = numHorizPanels360 * numVertPanels;
+pattern.gs_val = gsVal;
+
+% Build Pattern
+
+% initialize array
+Pats = zeros(numVertLEDs, numHorizLEDs360, pattern.x_num, pattern.y_num);
+
+% bar pattern for 1 X,Y
+% initalize full screen at mean luminance
+barPattern = ones(numVertLEDs, numHorizLEDs360) * meanLum;
+% add bar at smallest v coordinates
+barStartPos = 1;
+barPattern(:, barStartPos:(barWidth + barStartPos - 1)) = lightLum;
+
+% make grating pattern, start with dark
+% single dark, light stripe pair
+onePeriod = ones(numVertLEDs, 2*stripeWidth);
+onePeriod(:,1:stripeWidth) = darkLum;
+onePeriod(:,(stripeWidth+1):(stripeWidth*2)) = lightLum;
+
+% repeat single period to fill whole arena
+numReps = numHorizLEDs360 / (2*stripeWidth);
+gratingPattern = repmat(onePeriod, 1, numReps);
+
+% loop over all X
+for i = 1:numHorizLEDs360
+    % shift bar pattern 1 LED to left
+    Pats(:,:,i,yBarDisp) = ShiftMatrix(barPattern, i-1, horizShiftInv,'y');
+    
+    % loop over all grating Y values for this X
+    for j = 1:length(yGratingInd)
+        thisYInd = yGratingInd(j);
+        % shift grating pattern 1 LED to left, to make full period
+        Pats(:,:,i,thisYInd) = ShiftMatrix(gratingPattern, j-1, ...
+            horizShiftInv, 'y');
+    end  
+end
+
+% Set pattern values for other Y options
+Pats(:,:,:,yMeanLum) = meanLum;
+Pats(:,:,:,yAllOff) = darkLum;
+
+% put data in structure
+pattern.Pats = Pats; 		 
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 14: 2 LED wide light vertical bar in X, dark loom disc in Y
+%  regular direction (for bar), 360 deg arena
+% Azimuthal locations for discs, LEDs: 12 (left side), 36 (front), 60 
+%  (right); all discs centered at elevation midline
+% Meant for closed loop bar, open loop loom
+%
+% Last Updated: 3/4/21
+
+% Pattern Name
+patternName = 'Pattern_014_2pxLightVertBarX_darkDiscLoomY_2-16px_L-F-R_mid_360Reg';
+
+% Parameters
+barWidth = 2; % number of LED dots wide
+
+% indicies for Y options
+yBarDisp = 1;
+
+% loom start positions in azimuth, in LED pixels, 1 indexing
+loomDirPx = [12, 36, 60];
+numLoomDir = length(loomDirPx);
+
+% loom start position, elevation
+loomElePx = 8; % midline
+
+% minimum disc diameter, in pixels
+minDiscDiamPx = 2;
+% maximum disc diameter, in pixels
+maxDiscDiamPx = 16;
+
+
+% Pattern basic info
+pattern.x_num = numHorizLEDs360; 
+
+pattern.num_panels = numHorizPanels360 * numVertPanels;
+pattern.gs_val = gsVal;
+
+
+% Build pattern
+
+% conversion from LED pixels to degrees, including gaps
+degPerPxFull = 360 / numHorizLEDs360;
+
+% loom start position, in degrees
+loomDirDeg = loomDirPx .* degPerPxFull;
+loomEleDeg = loomElePx * degPerPxFull;
+
+% disc min and max diameter, in degrees
+minDiscDiamDeg = minDiscDiamPx * degPerPxFull;
+maxDiscDiamDeg = maxDiscDiamPx * degPerPxFull;
+
+
+% initialize discImgsAll as logical array of all zeros (for first Y index,
+% where there is no disc)
+discImgsAll = false(numVertLEDs,numHorizLEDs360);
+
+% call makeDiscImgSeries() for each loom direction
+for i = 1:numLoomDir
+    [discImgs, discDiams] = makeDiscImgSeries(numHorizLEDs360, ...
+        numVertLEDs, degPerPxFull, loomDirDeg(i), loomEleDeg, ...
+        minDiscDiamDeg, maxDiscDiamDeg);
+    
+    % concatenate to growing array    
+    discImgsAll = cat(3, discImgsAll, discImgs);
+end
+
+% length of each disc image series
+oneDiscImgLen = length(discDiams);
+
+
+% Y size is 3rd dimension of discImgsAll
+pattern.y_num = oneDiscImgLen * numLoomDir + 1;
+
+% initialize array, gray
+Pats = ones(numVertLEDs, numHorizLEDs360, pattern.x_num, ...
+    pattern.y_num) * meanLum;
+
+% bar pattern for 1 X,Y
+% initalize full screen at mean luminance
+barPattern = ones(numVertLEDs, numHorizLEDs360) * meanLum;
+% add bar at smallest v coordinates
+barStartPos = 1;
+barPattern(:, barStartPos:(barWidth + barStartPos - 1)) = lightLum;
+
+% loop over all Y
+for i = 1:pattern.y_num
+    % loop over all x
+    for j = 1:numHorizLEDs360
+        % generate bar pattern for this X
+        thisPattern = ShiftMatrix(barPattern, j-1, horizShiftReg,'y');
+        
+        % add loom to this bar
+        thisPattern(discImgsAll(:,:,i)) = darkLum;
+        
+        % add to Pats
+        Pats(:,:,j,i) = thisPattern;
+    end
+    
+end
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 15: 2 LED wide light vertical bar in X, dark loom disc in Y
+%  inverted direction (for bar), 360 deg arena
+% Azimuthal locations for discs, LEDs: 12 (left side), 36 (front), 60 
+%  (right); all discs centered at elevation midline
+% Meant for closed loop bar, open loop loom
+%
+% Last Updated: 3/4/21
+
+% Pattern Name
+patternName = 'Pattern_015_2pxLightVertBarX_darkDiscLoomY_2-16px_L-F-R_mid_360Inv';
+
+% Parameters
+barWidth = 2; % number of LED dots wide
+
+% indicies for Y options
+yBarDisp = 1;
+
+% loom start positions in azimuth, in LED pixels, 1 indexing
+loomDirPx = [60, 36, 12]; % inverted from pattern 14, b/c of left right flip
+numLoomDir = length(loomDirPx);
+
+% loom start position, elevation
+loomElePx = 8; % midline
+
+% minimum disc diameter, in pixels
+minDiscDiamPx = 2;
+% maximum disc diameter, in pixels
+maxDiscDiamPx = 16;
+
+
+% Pattern basic info
+pattern.x_num = numHorizLEDs360; 
+
+pattern.num_panels = numHorizPanels360 * numVertPanels;
+pattern.gs_val = gsVal;
+
+
+% Build pattern
+
+% conversion from LED pixels to degrees, including gaps
+degPerPxFull = 360 / numHorizLEDs360;
+
+% loom start position, in degrees
+loomDirDeg = loomDirPx .* degPerPxFull;
+loomEleDeg = loomElePx * degPerPxFull;
+
+% disc min and max diameter, in degrees
+minDiscDiamDeg = minDiscDiamPx * degPerPxFull;
+maxDiscDiamDeg = maxDiscDiamPx * degPerPxFull;
+
+
+% initialize discImgsAll as logical array of all zeros (for first Y index,
+% where there is no disc)
+discImgsAll = false(numVertLEDs,numHorizLEDs360);
+
+% call makeDiscImgSeries() for each loom direction
+for i = 1:numLoomDir
+    [discImgs, discDiams] = makeDiscImgSeries(numHorizLEDs360, ...
+        numVertLEDs, degPerPxFull, loomDirDeg(i), loomEleDeg, ...
+        minDiscDiamDeg, maxDiscDiamDeg);
+    
+    % concatenate to growing array    
+    discImgsAll = cat(3, discImgsAll, discImgs);
+end
+
+% length of each disc image series
+oneDiscImgLen = length(discDiams);
+
+
+% Y size is 3rd dimension of discImgsAll
+pattern.y_num = oneDiscImgLen * numLoomDir + 1;
+
+% initialize array, gray
+Pats = ones(numVertLEDs, numHorizLEDs360, pattern.x_num, ...
+    pattern.y_num) * meanLum;
+
+% bar pattern for 1 X,Y
+% initalize full screen at mean luminance
+barPattern = ones(numVertLEDs, numHorizLEDs360) * meanLum;
+% add bar at smallest v coordinates
+barStartPos = 1;
+barPattern(:, barStartPos:(barWidth + barStartPos - 1)) = lightLum;
+
+% loop over all Y
+for i = 1:pattern.y_num
+    % loop over all x
+    for j = 1:numHorizLEDs360
+        % generate bar pattern for this X
+        thisPattern = ShiftMatrix(barPattern, j-1, horizShiftInv,'y');
+        
+        % add loom to this bar
+        thisPattern(discImgsAll(:,:,i)) = darkLum;
+        
+        % add to Pats
+        Pats(:,:,j,i) = thisPattern;
+    end
+    
+end
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 16: 4 LED wide grating with front 8 LEDs gray
+% X encodes rotation, Y encodes front-to-back motion of grating
+% regular direction, 360 deg arena
+%
+% Meant to be used in closed loop for X and Y, or closed loop for X and
+%  open loop for Y, to provide optic flow
+%
+% Last Updated: 3/4/21
+
+% Pattern Name
+patternName = 'Pattern_016_4pxLightDarkSquareGrating_XRot_YFtB_360Reg';
+
+% Parameters
+stripeWidth = 4; % number of LED dots wide each light/dark stripe is
+grayLEDs = 33:40; % indices of front 8 LEDs to keep gray, 1 indexing 
+% horiz indicies of left and right fields, 1 indexing
+indLeftField = [1:36, 85:96];
+indRightField = [37:84];
+
+numBallRevPerArenadiam = 2;
+
+% Pattern basic info
+pattern.x_num = numHorizLEDs360;
+
+% compute number of grating periods to include in Y
+% depends on mapping ball revolutions to arena diameter, needs to be full
+%  number of periods to loop w/o gaps
+% NOTE: this code isn't checking for integer values, check this yourself
+numPeriods = (numHorizLEDs360/2) / (stripeWidth * 2);
+
+% number of Y elements is number of periods for 1 ball revolution times the
+%  number of positions required for a full period
+pattern.y_num = (numPeriods / numBallRevPerArenadiam) * (stripeWidth * 2);
+
+
+% Build Pattern
+
+% initialize array
+Pats = zeros(numVertLEDs, numHorizLEDs360, pattern.x_num, pattern.y_num);
+
+% make grating pattern, start with dark
+% single dark, light stripe pair
+onePeriod = ones(numVertLEDs, 2*stripeWidth);
+onePeriod(:,1:stripeWidth) = darkLum;
+onePeriod(:,(stripeWidth+1):(stripeWidth*2)) = lightLum;
+
+% repeat single period to fill whole arena
+numReps = numHorizLEDs360 / (2*stripeWidth);
+gratingPattern = repmat(onePeriod, 1, numReps);
+
+% loop over all X
+for i = 1:numHorizLEDs360
+    % for each X, shift pattern 1 LED to left
+    thisXPattern = ShiftMatrix(gratingPattern, i-1, ...
+        horizShiftReg,'y');
+    
+    % loop over all Y, adding in front-to-back shifts
+    for j = 1:pattern.y_num
+        % shift each half of grating, opposite directions
+        leftHalf = circshift(thisXPattern(:,indLeftField), -1* (j-1), 2);
+        rightHalf = circshift(thisXPattern(:,indRightField), j-1, 2);
+        
+        % merge into full pattern
+        thisXYPattern = thisXPattern; % initialize
+        thisXYPattern(:,indLeftField) = leftHalf;
+        thisXYPattern(:,indRightField) = rightHalf;
+        
+        % gray out front panels
+        thisXYPattern(:,grayLEDs) = meanLum;
+
+        % add to Pats
+        Pats(:,:,i,j) = thisXYPattern;
+    end
+end
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 17: 4 LED wide grating with front 8 LEDs gray
+% X encodes rotation, Y encodes front-to-back motion of grating
+% inverted direction (for X, rotation), 360 deg arena
+%
+% Meant to be used in closed loop for X and Y, or closed loop for X and
+%  open loop for Y, to provide optic flow
+%
+% Last Updated: 3/4/21
+
+% Pattern Name
+patternName = 'Pattern_017_4pxLightDarkSquareGrating_XRot_YFtB_360Inv';
+
+% Parameters
+stripeWidth = 4; % number of LED dots wide each light/dark stripe is
+grayLEDs = 33:40; % indices of front 8 LEDs to keep gray, 1 indexing 
+% horiz indicies of left and right fields, 1 indexing
+indLeftField = [1:36, 85:96];
+indRightField = [37:84];
+
+numBallRevPerArenadiam = 2;
+
+% Pattern basic info
+pattern.x_num = numHorizLEDs360;
+
+% compute number of grating periods to include in Y
+% depends on mapping ball revolutions to arena diameter, needs to be full
+%  number of periods to loop w/o gaps
+% NOTE: this code isn't checking for integer values, check this yourself
+numPeriods = (numHorizLEDs360/2) / (stripeWidth * 2);
+
+% number of Y elements is number of periods for 1 ball revolution times the
+%  number of positions required for a full period
+pattern.y_num = (numPeriods / numBallRevPerArenadiam) * (stripeWidth * 2);
+
+
+% Build Pattern
+
+% initialize array
+Pats = zeros(numVertLEDs, numHorizLEDs360, pattern.x_num, pattern.y_num);
+
+% make grating pattern, start with dark
+% single dark, light stripe pair
+onePeriod = ones(numVertLEDs, 2*stripeWidth);
+onePeriod(:,1:stripeWidth) = darkLum;
+onePeriod(:,(stripeWidth+1):(stripeWidth*2)) = lightLum;
+
+% repeat single period to fill whole arena
+numReps = numHorizLEDs360 / (2*stripeWidth);
+gratingPattern = repmat(onePeriod, 1, numReps);
+
+% loop over all X
+for i = 1:numHorizLEDs360
+    % for each X, shift pattern 1 LED to left
+    thisXPattern = ShiftMatrix(gratingPattern, i-1, ...
+        horizShiftInv,'y');
+    
+    % loop over all Y, adding in front-to-back shifts
+    for j = 1:pattern.y_num
+        % shift each half of grating, opposite directions
+        leftHalf = circshift(thisXPattern(:,indLeftField), -1* (j-1), 2);
+        rightHalf = circshift(thisXPattern(:,indRightField), j-1, 2);
+        
+        % merge into full pattern
+        thisXYPattern = thisXPattern; % initialize
+        thisXYPattern(:,indLeftField) = leftHalf;
+        thisXYPattern(:,indRightField) = rightHalf;
+        
+        % gray out front panels
+        thisXYPattern(:,grayLEDs) = meanLum;
+
+        % add to Pats
+        Pats(:,:,i,j) = thisXYPattern;
+    end
+end
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 18: 2 LED wide light bar in X, 4 LED wide grating with front 8 
+%   LEDs gray in Y
+% X encodes rotation, Y encodes front-to-back motion of grating
+% regular direction, 360 deg arena
+%
+% Meant to be used in closed loop for X and open loop for Y, to provide 
+%  front-to-back/back-to-front optic flow
+%
+% Last Updated: 3/7/21
+
+% Pattern Name
+patternName = 'Pattern_018_2pxLightBarX_4pxLightDarkSquareGratingY_XRot_YFtB_360Reg';
+
+% Parameters
+barWidth = 2; % number of LED dots wide for bar
+
+stripeWidth = 4; % number of LED dots wide each light/dark stripe is
+grayLEDs = 33:40; % indices of front 8 LEDs to keep gray, 1 indexing 
+% horiz indicies of left and right fields, 1 indexing
+indLeftField = [1:36, 85:96];
+indRightField = [37:84];
+
+numBallRevPerArenadiam = 2;
+
+% indicies for Y options
+yBarDisp = 1;
+
+% Pattern basic info
+pattern.x_num = numHorizLEDs360;
+
+% compute number of grating periods to include in Y
+% depends on mapping ball revolutions to arena diameter, needs to be full
+%  number of periods to loop w/o gaps
+% NOTE: this code isn't checking for integer values, check this yourself
+numPeriods = (numHorizLEDs360/2) / (stripeWidth * 2);
+
+% number of Y elements is number of periods for 1 ball revolution times the
+%  number of positions required for a full period plus 1 for when only bar
+%  is displayed
+pattern.y_num = (numPeriods / numBallRevPerArenadiam) * ...
+    (stripeWidth * 2) + 1;
+
+
+% Build Pattern
+
+% initialize array
+Pats = zeros(numVertLEDs, numHorizLEDs360, pattern.x_num, pattern.y_num);
+
+% for Y index = 1, just bar
+% bar pattern for 1 X,Y
+% initalize full screen at mean luminance
+barPattern = ones(numVertLEDs, numHorizLEDs360) * meanLum;
+% add bar at smallest v coordinates
+barStartPos = 1;
+barPattern(:, barStartPos:(barWidth + barStartPos - 1)) = lightLum;
+
+% generate shifted pattern for all X
+for i = 1:numHorizLEDs360
+    % shift pattern 1 LED to left
+    Pats(:,:,i,yBarDisp) = ShiftMatrix(barPattern, i-1, horizShiftReg,'y');
+    
+end
+
+% for bar + grating
+
+% make grating pattern logical - false for dark, true for light
+onePeriod = false(numVertLEDs, 2*stripeWidth);
+onePeriod(:,(stripeWidth+1):(stripeWidth*2)) = true;
+
+% repeat single period to fill whole arena
+numReps = numHorizLEDs360 / (2*stripeWidth);
+gratingPattern = repmat(onePeriod, 1, numReps);
+
+% bar pattern for 1 X,Y
+% logical true for bar, false for background
+barPattern = false(numVertLEDs, numHorizLEDs360);
+% add bar at smallest v coordinates
+barStartPos = 1;
+barPattern(:, barStartPos:(barWidth + barStartPos - 1)) = true;
+
+% loop over all X
+for i = 1:numHorizLEDs360
+    % for each X, shift pattern 1 LED to left
+    thisXPattern = ShiftMatrix(barPattern, i-1, horizShiftReg,'y');
+    
+    figure;
+    
+    % loop over all Y, adding in front-to-back shifts
+    for j = 2:pattern.y_num
+        % shift each half of grating, opposite directions
+        leftHalf = circshift(gratingPattern(:,indLeftField), -1* (j-2), 2);
+        rightHalf = circshift(gratingPattern(:,indRightField), j-2, 2);
+        
+        % merge into full pattern
+        thisGratingPattern = thisXPattern; % initialize
+        thisGratingPattern(:,indLeftField) = leftHalf;
+        thisGratingPattern(:,indRightField) = rightHalf;
+        thisXYPattern = thisGratingPattern | thisXPattern;
+        
+        % convert from logical to luminance values
+        % initialize at dark lum
+        thisXYPatternLum = ones(size(thisXYPattern)) * darkLum;
+        % convert logical true to light lum;
+        thisXYPatternLum(thisXYPattern) = lightLum;
+        
+        % gray out front panels
+        thisXYPatternLum(:,grayLEDs) = meanLum;
+        
+        imagesc(thisXYPatternLum);
+        axis('equal');
+        pause(0.05);
+
+        % add to Pats
+        Pats(:,:,i,j) = thisXYPatternLum;
+    end
+end
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 19: 2 LED wide light bar in X, 4 LED wide grating with front 8 
+%   LEDs gray in Y
+% X encodes rotation, Y encodes front-to-back motion of grating
+% inverted direction, 360 deg arena
+%
+% Meant to be used in closed loop for X and open loop for Y, to provide 
+%  front-to-back/back-to-front optic flow
+%
+% Last Updated: 3/7/21
+
+% Pattern Name
+patternName = 'Pattern_019_2pxLightBarX_4pxLightDarkSquareGratingY_XRot_YFtB_360Inv';
+
+% Parameters
+barWidth = 2; % number of LED dots wide for bar
+
+stripeWidth = 4; % number of LED dots wide each light/dark stripe is
+grayLEDs = 33:40; % indices of front 8 LEDs to keep gray, 1 indexing 
+% horiz indicies of left and right fields, 1 indexing
+indLeftField = [1:36, 85:96];
+indRightField = [37:84];
+
+numBallRevPerArenadiam = 2;
+
+% indicies for Y options
+yBarDisp = 1;
+
+% Pattern basic info
+pattern.x_num = numHorizLEDs360;
+
+% compute number of grating periods to include in Y
+% depends on mapping ball revolutions to arena diameter, needs to be full
+%  number of periods to loop w/o gaps
+% NOTE: this code isn't checking for integer values, check this yourself
+numPeriods = (numHorizLEDs360/2) / (stripeWidth * 2);
+
+% number of Y elements is number of periods for 1 ball revolution times the
+%  number of positions required for a full period plus 1 for when only bar
+%  is displayed
+pattern.y_num = (numPeriods / numBallRevPerArenadiam) * ...
+    (stripeWidth * 2) + 1;
+
+
+% Build Pattern
+
+% initialize array
+Pats = zeros(numVertLEDs, numHorizLEDs360, pattern.x_num, pattern.y_num);
+
+% for Y index = 1, just bar
+% bar pattern for 1 X,Y
+% initalize full screen at mean luminance
+barPattern = ones(numVertLEDs, numHorizLEDs360) * meanLum;
+% add bar at smallest v coordinates
+barStartPos = 1;
+barPattern(:, barStartPos:(barWidth + barStartPos - 1)) = lightLum;
+
+% generate shifted pattern for all X
+for i = 1:numHorizLEDs360
+    % shift pattern 1 LED to left
+    Pats(:,:,i,yBarDisp) = ShiftMatrix(barPattern, i-1, horizShiftInv,'y');
+    
+end
+
+% for bar + grating
+
+% make grating pattern logical - false for dark, true for light
+onePeriod = false(numVertLEDs, 2*stripeWidth);
+onePeriod(:,(stripeWidth+1):(stripeWidth*2)) = true;
+
+% repeat single period to fill whole arena
+numReps = numHorizLEDs360 / (2*stripeWidth);
+gratingPattern = repmat(onePeriod, 1, numReps);
+
+% bar pattern for 1 X,Y
+% logical true for bar, false for background
+barPattern = false(numVertLEDs, numHorizLEDs360);
+% add bar at smallest v coordinates
+barStartPos = 1;
+barPattern(:, barStartPos:(barWidth + barStartPos - 1)) = true;
+
+% loop over all X
+for i = 1:numHorizLEDs360
+    % for each X, shift pattern 1 LED to left
+    thisXPattern = ShiftMatrix(barPattern, i-1, horizShiftInv,'y');
+    
+    figure;
+    
+    % loop over all Y, adding in front-to-back shifts
+    for j = 2:pattern.y_num
+        % shift each half of grating, opposite directions
+        leftHalf = circshift(gratingPattern(:,indLeftField), -1* (j-2), 2);
+        rightHalf = circshift(gratingPattern(:,indRightField), j-2, 2);
+        
+        % merge into full pattern
+        thisGratingPattern = thisXPattern; % initialize
+        thisGratingPattern(:,indLeftField) = leftHalf;
+        thisGratingPattern(:,indRightField) = rightHalf;
+        thisXYPattern = thisGratingPattern | thisXPattern;
+        
+        % convert from logical to luminance values
+        % initialize at dark lum
+        thisXYPatternLum = ones(size(thisXYPattern)) * darkLum;
+        % convert logical true to light lum;
+        thisXYPatternLum(thisXYPattern) = lightLum;
+        
+        % gray out front panels
+        thisXYPatternLum(:,grayLEDs) = meanLum;
+        
+        imagesc(thisXYPatternLum);
+        axis('equal');
+        pause(0.05);
+
+        % add to Pats
+        Pats(:,:,i,j) = thisXYPatternLum;
+    end
+end
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+
+%% Pattern  - 2 LED wide light vertical bar, starfield on gray,
 % regular direction
 % Bar position encoded in X, starfield moves front to back in Y, frontal
 %  region (1 panel, 30 deg) gray with no stars
 
 % Pattern Name
-patternName = 'Pattern_012_2pxLightVertBarStarfieldOnGray360Reg';
+patternName = 'Pattern_0_2pxLightVertBarStarfieldOnGray360Reg';
 
 % Parameters
 ballDiam = 0.646; % diameter of FicTrac ball, in cm
@@ -731,5 +1538,7 @@ indRightField = [37 72];
 bkgdLum = meanLum;
 starLum = lightLum;
 barLum = lightLum;
+
+
 
 
