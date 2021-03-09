@@ -30,6 +30,8 @@ numHorizLEDs360 = numHorizPanels360 * LEDsPerPanel;
 numHorizLEDs270 = numHorizPanels270 * LEDsPerPanel;
 numVertLEDs = numVertPanels * LEDsPerPanel;
 
+fullLEDSizeDeg = 360 / numHorizLEDs360;
+
 %% Function 001 - static
 % default function, nothing changes, all 0
 %
@@ -48,7 +50,7 @@ save([vsFunctionsDir() filesep funcName '.mat'], 'func');
 %  directions); pseudorandom sequence
 % pairs with patterns 9 and 10
 %
-% Last Updated: 2/21/21
+% Last Updated: 3/8/21 - change LED size to include edges (2.8 to 3.75)
 
 XFuncName = 'position_function_002_X_grayStaticRotatingGrating20-60-180-300';
 YFuncName = 'position_function_003_Y_grayStaticRotatingGrating20-60-180-300';
@@ -76,7 +78,8 @@ yAllOff = 2;
 
 % convert inputs into pixels and frames
 % speed in pixels per frame
-spdPxFr = gratingSpds .* (1/degPerLED) .* (1/settings.visstim.funcfreq);
+spdPxFr = gratingSpds .* (1/fullLEDSizeDeg) .* ...
+    (1/settings.visstim.funcfreq);
 % duration spent on each pixel, in frames (rounded to nearest whole frame)
 durFrPx = round(1./spdPxFr);
 
@@ -108,7 +111,7 @@ seqDurFr = numTrials * (barDurFr + staticDurFr + moveDurFr);
 trialDurFr = barDurFr + staticDurFr + moveDurFr;
 
 % preallocate vector
-yFunc = zeros(1, seqDurFr);
+xFunc = zeros(1, seqDurFr);
 
 % basis vector for increasing position values
 incPosBasis = 0:(numHorizLEDs360 - 1);
@@ -128,7 +131,7 @@ for i = 1:numTrials
     
     % build gray and static portion of trial
     % grating at start postion, unmoving
-    yFunc(startInd:staticEndInd) = startPos;
+    xFunc(startInd:staticEndInd) = startPos;
     
     % build moving portion of trial
     % determine which velocity
@@ -166,7 +169,7 @@ for i = 1:numTrials
 
     % add to full position function vector, clip move sequence to right
     %  length
-    yFunc(moveStartInd:endInd) = longSeq(1:moveDurFr); 
+    xFunc(moveStartInd:endInd) = longSeq(1:moveDurFr); 
 end
 
 % build Y function
@@ -179,7 +182,7 @@ oneYTrial = [(ones(1, barDurFr) * yMeanLum), ...
 yFunc = repmat(oneYTrial, 1, numTrials);
 
 % save X and Y functions
-func = yFunc;
+func = xFunc;
 save([vsFunctionsDir() filesep XFuncName '.mat'], 'func');
 func = yFunc;
 save([vsFunctionsDir() filesep YFuncName '.mat'], 'func');
@@ -249,15 +252,15 @@ durGrayEndFr = round(durGrayEnd * settings.visstim.funcfreq);
     minDiscDiamDeg, maxDiscDiamDeg);
 
 % min X index, accounting for 0 indexing
-minXInd = 0;
+minYInd = 0;
 
 % max X index, accounting for 0 indexing
-maxXInd = length(discDiams) - 1;
+maxYInd = length(discDiams) - 1;
 
 
 % initialize - position function for each r/v, dir pair into cell array,
 %  for later randomization
-yFunc = {};
+xFunc = {};
 yFunc = {};
 
 % initialize counter for total number of frames across all trials
@@ -291,11 +294,11 @@ for i = 1:numRVs
     % loop through all loom directions, generate position function sequence
     for j = 1:numLoomDirs
         % gray at start of trial
-        xThisTrial = ones(1, durGrayStartFr) * minXInd;
+        xThisTrial = ones(1, durGrayStartFr) * minYInd;
         yThisTrial = ones(1, durGrayStartFr) * yMeanLum;
         
         % static disc, min size
-        xThisTrial = [xThisTrial (ones(1, durStaticStartFr) * minXInd)];
+        xThisTrial = [xThisTrial (ones(1, durStaticStartFr) * minYInd)];
         yThisTrial = [yThisTrial (ones(1, durStaticStartFr) * loomDirs(j))];
         
         % looming disc
@@ -303,15 +306,15 @@ for i = 1:numRVs
         yThisTrial = [yThisTrial (ones(1, length(discXInd)) * loomDirs(j))];
         
         % static disc, max size
-        xThisTrial = [xThisTrial (ones(1, durStaticEndFr) * maxXInd)];
+        xThisTrial = [xThisTrial (ones(1, durStaticEndFr) * maxYInd)];
         yThisTrial = [yThisTrial (ones(1, durStaticEndFr) * loomDirs(j))];
         
         % gray at end of trial
-        xThisTrial = [xThisTrial (ones(1, durGrayEndFr) * maxXInd)];
+        xThisTrial = [xThisTrial (ones(1, durGrayEndFr) * maxYInd)];
         yThisTrial = [yThisTrial (ones(1,durGrayEndFr) * yMeanLum)];
         
         % save these into cell array
-        yFunc = [yFunc {xThisTrial}]; % {xFunc{:} xThisTrial};
+        xFunc = [xFunc {xThisTrial}]; % {xFunc{:} xThisTrial};
         yFunc = [yFunc {yThisTrial}]; % {yFunc{:} yThisTrial};
         
         % increment numFrames counter
@@ -321,7 +324,7 @@ end
 
 % generate position function by making one array withpseudorandom order of 
 %  these trials
-numTrialsPerRep = length(yFunc);
+numTrialsPerRep = length(xFunc);
 
 % preallocate
 xFuncArray = zeros(1, numFrames * numReps);
@@ -337,10 +340,10 @@ for i = 1:numReps
     % append each trial to position function vector
     for j = 1:length(trialOrder)
         % end index of trial depends on trial length
-        trialEndInd = trialStartInd + length(yFunc{trialOrder(j)}) - 1;
+        trialEndInd = trialStartInd + length(xFunc{trialOrder(j)}) - 1;
         
         % add to position vector
-        xFuncArray(trialStartInd:trialEndInd) = yFunc{trialOrder(j)};
+        xFuncArray(trialStartInd:trialEndInd) = xFunc{trialOrder(j)};
         yFuncArray(trialStartInd:trialEndInd) = yFunc{trialOrder(j)};
         
         % update start index for next trial
@@ -389,7 +392,8 @@ yGratingInd = (1:(stripeWidth * 2)) + yAllOff;
 
 % convert inputs into pixels and frames
 % speed in pixels per frame
-spdPxFr = gratingSpds .* (1/degPerLED) .* (1/settings.visstim.funcfreq);
+spdPxFr = gratingSpds .* (1/fullLEDSizeDeg) .* ...
+    (1/settings.visstim.funcfreq);
 % duration spent on each pixel, in frames (rounded to nearest whole frame)
 durFrPx = round(1./spdPxFr);
 
@@ -491,36 +495,33 @@ end
 func = yFunc;
 save([vsFunctionsDir() filesep YFuncName '.mat'], 'func');
 
-%% Function 007 - Y function for disc loom
-% closed loop bar in X
-% Y: closed loop bar, disc on static (small), disc loom, disc on static 
-%  (big)
-% psuedorandom sequence of loom speeds (different r/v ratios) and loom
-%  directions
+%% Function 007 - Y function for disc loom, while closed loop bar in X
+% Y: closed loop bar (X controls), disc on static (small), disc loom, disc 
+%  on static (big)
+% psuedorandom sequence of loom directions; only 1 loom speed r/v = 0.310 
 % pairs with patterns 14 and 15
 %
 % Last Updated: 3/8/21
 
-YFuncName = 'position_function_005_Y_darkLoom_allDir_rv40-310';
+YFuncName = 'position_function_007_Y_darkLoom_allDir_rv310';
 
 
 % r/v ratios, in seconds
-rvRatios = [.010 .070 .130 .310 .550];
+rvRatios = [.310];
 numRVs = length(rvRatios);
 
-% loom directions (0 indexing into Y dimension of pattern 11)
-numLoomDirs = 5;
+% loom directions (0 indexing into Y dimension of patterns 14 and 15)
+numLoomDirs = 3;
 loomDirs = 0:(numLoomDirs - 1);
 
-% Y indicies for all gray, all dark
-yMeanLum = numLoomDirs;
-yAllOff = numLoomDirs + 1;
+% Y indicies for bar on, loom off
+yBarOn = 0;
 
 % deg per pixel, with gap
 degPerPxFull = 360 / numHorizLEDs360;
 
 % loom start positions in azimuth, in LED pixels, 1 indexing
-loomDirPx = [12, 24, 36, 48, 60];
+loomDirPx = [12, 36, 60];
 % loom start position, elevation
 loomElePx = 8; % midline
 % loom start position, in degrees
@@ -538,34 +539,38 @@ maxDiscDiamDeg = maxDiscDiamPx * degPerPxFull;
 % number of repeats to encode in this function
 numReps = 5; 
 
-% duration of gray and static periods, in seconds
-durGrayStart = 0.5;
+% duration of bar on, static periods
+durBarOn = 45; % time of bar, no loom, in seconds
 durStaticStart = 0.5;
 durStaticEnd = 0.2;
-durGrayEnd = 0.5;
 
 % durations in frames
-durGrayStartFr = round(durGrayStart * settings.visstim.funcfreq);
+durBarOnStartFr = round(durBarOn * settings.visstim.funcfreq);
 durStaticStartFr = round(durStaticStart * settings.visstim.funcfreq);
 durStaticEndFr = round(durStaticEnd * settings.visstim.funcfreq);
-durGrayEndFr = round(durGrayEnd * settings.visstim.funcfreq);
 
 % call same makeDiscImgSeries() function as patterns, need discDiams for
-%  each img in X
+%  each img in Y
 [~, discDiams] = makeDiscImgSeries(numHorizLEDs360, ...
     numVertLEDs, degPerPxFull, loomDirDeg(1), loomEleDeg, ...
     minDiscDiamDeg, maxDiscDiamDeg);
 
-% min X index, accounting for 0 indexing
-minXInd = 0;
+% in Y, discDiams repeats for each loom direction
+discDiamsAllDirs = repmat(discDiams,1,3);
 
-% max X index, accounting for 0 indexing
-maxXInd = length(discDiams) - 1;
+% length of one discDiams repeat
+lenDiscDiams = length(discDiams);
+
+
+% min Y index, accounting for 0 indexing
+minYInd = 0;
+
+% max Y index, accounting for 0 indexing (-1), but +1 for index 0, bar only
+maxYInd = length(discDiamsAllDirs);
 
 
 % initialize - position function for each r/v, dir pair into cell array,
 %  for later randomization
-yFunc = {};
 yFunc = {};
 
 % initialize counter for total number of frames across all trials
@@ -583,7 +588,7 @@ for i = 1:numRVs
     discSizeTime = fliplr(discSizeTime);
     
     % preallocate
-    discXInd = zeros(1, length(discSizeTime));
+    discYInd = zeros(1, length(discSizeTime));
     
     % using discDiams for each image in X, determine indexing into X for
     %  this time series
@@ -592,38 +597,31 @@ for i = 1:numRVs
         %  disc, has to be larger)
         ind = find(discSizeTime(l) >= discDiams, 1, 'last'); 
         
-        % account for 0 indexing
-        discXInd(l) = ind - 1;  
+        % accounts for 0 indexing (but +1 for bar only)
+        discYInd(l) = ind;  
     end
     
     % loop through all loom directions, generate position function sequence
     for j = 1:numLoomDirs
         % gray at start of trial
-        xThisTrial = ones(1, durGrayStartFr) * minXInd;
-        yThisTrial = ones(1, durGrayStartFr) * yMeanLum;
+        yThisTrial = ones(1, durBarOnStartFr) * yBarOn;
         
         % static disc, min size
-        xThisTrial = [xThisTrial (ones(1, durStaticStartFr) * minXInd)];
-        yThisTrial = [yThisTrial (ones(1, durStaticStartFr) * loomDirs(j))];
+        yStartInd = (j-1) * lenDiscDiams + 1; % index for this disc
+        yThisTrial = [yThisTrial (ones(1, durStaticStartFr) * yStartInd)];
         
         % looming disc
-        xThisTrial = [xThisTrial discXInd];
-        yThisTrial = [yThisTrial (ones(1, length(discXInd)) * loomDirs(j))];
+        yThisTrial = [yThisTrial (discYInd + yStartInd)];
         
         % static disc, max size
-        xThisTrial = [xThisTrial (ones(1, durStaticEndFr) * maxXInd)];
-        yThisTrial = [yThisTrial (ones(1, durStaticEndFr) * loomDirs(j))];
-        
-        % gray at end of trial
-        xThisTrial = [xThisTrial (ones(1, durGrayEndFr) * maxXInd)];
-        yThisTrial = [yThisTrial (ones(1,durGrayEndFr) * yMeanLum)];
-        
+        yEndInd = j * lenDiscDiams;
+        xThisTrial = [yThisTrial (ones(1, durStaticEndFr) * yEndInd)];
+
         % save these into cell array
-        yFunc = [yFunc {xThisTrial}]; % {xFunc{:} xThisTrial};
         yFunc = [yFunc {yThisTrial}]; % {yFunc{:} yThisTrial};
         
         % increment numFrames counter
-        numFrames = numFrames + length(xThisTrial);
+        numFrames = numFrames + length(yThisTrial);
     end
 end
 
@@ -632,7 +630,6 @@ end
 numTrialsPerRep = length(yFunc);
 
 % preallocate
-xFuncArray = zeros(1, numFrames * numReps);
 yFuncArray = zeros(1, numFrames * numReps);
 
 % counter to keep track of start index of trial
@@ -648,7 +645,6 @@ for i = 1:numReps
         trialEndInd = trialStartInd + length(yFunc{trialOrder(j)}) - 1;
         
         % add to position vector
-        xFuncArray(trialStartInd:trialEndInd) = yFunc{trialOrder(j)};
         yFuncArray(trialStartInd:trialEndInd) = yFunc{trialOrder(j)};
         
         % update start index for next trial
@@ -656,8 +652,230 @@ for i = 1:numReps
     end
 end
 
-% save X and Y functions
-func = xFuncArray;
-save([vsFunctionsDir() filesep XFuncName '.mat'], 'func');
+% save function
 func = yFuncArray;
 save([vsFunctionsDir() filesep YFuncName '.mat'], 'func');
+
+%% Function 008: Y for front-to-back motion of grating, X is closed loop
+% closed loop rotating grating in X, moving grating front to back and
+%  back to front, alternating
+% pairs with patterns 16 and 17
+%
+% Last Updated: 3/8/21
+
+YFuncName = 'position_function_008_Y_GratingX_FtBBtFGrating_0.5revPerSec';
+
+% Parameters
+
+% number of ball revolutions per second: ball circumference is ~20 mm
+numBallRevsPerSec = 0.5; % so, ~10mm/sec FtB/BtF optic flow
+
+% mapping of pattern to ball revolutions (full length of Y dim moves
+%  pattern 1/2 of the arena)
+numBallRevPerArenadiam = 2;
+
+% duration of optic flow, in sec
+moveDur = 1; 
+
+% duration of closed loop X only, no external Y
+durXOnly = 7; % in seconds
+
+% pattern build parameters
+stripeWidth = 4; % number of LED dots wide each light/dark stripe is
+numPeriods = (numHorizLEDs360/2) / (stripeWidth * 2);
+% number of Y elements is number of periods for 1 ball revolution times the
+%  number of positions required for a full period
+numYEle = (numPeriods / numBallRevPerArenadiam) * (stripeWidth * 2);
+
+% convert inputs into pixels and frames
+% speed in pixels per frame
+% 1 arena diameter covers half the number of horiz LEDs
+spdPxFr = (numHorizLEDs360 / 2) * numBallRevsPerSec / ...
+    numBallRevPerArenadiam * (1/settings.visstim.funcfreq);
+% duration spent on each pixel, in frames (rounded to nearest whole frame)
+durFrPx = round(1./spdPxFr);
+
+% basis vector for increasing Y position values
+incPosBasis = 0:(numYEle - 1);
+% basis vector for decreasing position values
+decPosBasis = (numYEle - 1):-1:0;
+% shift decreasing position basis vector to also start at zero
+decPosBasis = circshift(decPosBasis, 1);
+
+% duration in frames
+moveDurFr = round(moveDur * settings.visstim.funcfreq);
+durXOnlyFr = round(durXOnly * settings.visstim.funcfreq);
+
+
+% build position sequence, 1X front-to-back, 1X back-to-front
+
+% preallocate
+yFunc = zeros(1, 2 * (moveDurFr + durXOnlyFr));
+
+% first X only closed loop, no change in Y
+yFunc(1:durXOnlyFr) = 0; % when only X, use Y = 0;
+% change in Y: front-to-back
+moveStartInd = durXOnlyFr + 1;
+moveEndInd = moveStartInd + moveDurFr - 1;
+% sequence for change in Y
+ftbMotion = repelem(incPosBasis, durFrPx);
+% if sequence long enough
+if (length(ftbMotion) >= moveDurFr)
+    % just clip and add to function
+    yFunc(moveStartInd:moveEndInd) = ftbMotion(1:moveDurFr);
+else % otherwise, repeat sequence
+    % figure out number of repeats
+    numSeqReps = ceil(moveDurFr/length(ftbMotion));
+    % generate that vector of sufficient length
+    longSeq = repmat(ftbMotion,1,numSeqReps);
+    yFunc(moveStartInd:moveEndInd) = longSeq(1:moveDurFr);
+end
+
+% second X only closed loop, no change in Y
+XOnlyStartInd = moveEndInd + 1;
+XOnlyEndInd = XOnlyStartInd + durXOnlyFr - 1;
+yFunc(XOnlyStartInd:XOnlyEndInd) = 0;
+
+% change in Y: back-to=front
+moveStartInd = XOnlyEndInd + 1;
+moveEndInd = moveStartInd + moveDurFr - 1;
+% sequence for change in Y
+btfMotion = repelem(decPosBasis, durFrPx);
+% if sequence long enough
+if (length(btfMotion) >= moveDurFr)
+    % just clip and add to function
+    yFunc(moveStartInd:moveEndInd) = btfMotion(1:moveDurFr);
+else % otherwise, repeat sequence
+    % figure out number of repeats
+    numSeqReps = ceil(moveDurFr/length(btfMotion));
+    % generate that vector of sufficient length
+    longSeq = repmat(btfMotion,1,numSeqReps);
+    yFunc(moveStartInd:moveEndInd) = longSeq(1:moveDurFr);
+end
+ 
+% save function
+func = yFunc;
+save([vsFunctionsDir() filesep YFuncName '.mat'], 'func');
+    
+%% Function 009: Y for front-to-back motion of grating, X is closed loop
+% closed loop bar in X, static grating, moving grating front to back and
+%  back to front, alternating
+% pairs with patterns 18 and 19 (index 1 for bar only)
+%
+% Last Updated: 3/8/21
+
+YFuncName = 'position_function_009_Y_barStaticFtBBtFGrating_0.5revPerSec';
+
+% Parameters
+
+% number of ball revolutions per second: ball circumference is ~20 mm
+numBallRevsPerSec = 0.5; % so, ~10mm/sec FtB/BtF optic flow
+
+% mapping of pattern to ball revolutions (full length of Y dim moves
+%  pattern 1/2 of the arena)
+numBallRevPerArenadiam = 2;
+
+% duration of optic flow, in sec
+moveDur = 1; 
+
+% duration of closed loop X only, no external Y
+durXOnly = 7; % in seconds
+
+% duration of static grating
+staticDur = 0.5;
+
+% index of bar only
+yBarInd = 0;
+
+% pattern build parameters
+stripeWidth = 4; % number of LED dots wide each light/dark stripe is
+numPeriods = (numHorizLEDs360/2) / (stripeWidth * 2);
+% number of Y elements is number of periods for 1 ball revolution times the
+%  number of positions required for a full period
+numYEle = (numPeriods / numBallRevPerArenadiam) * (stripeWidth * 2);
+
+% convert inputs into pixels and frames
+% speed in pixels per frame
+% 1 arena diameter covers half the number of horiz LEDs
+spdPxFr = (numHorizLEDs360 / 2) * numBallRevsPerSec / ...
+    numBallRevPerArenadiam * (1/settings.visstim.funcfreq);
+% duration spent on each pixel, in frames (rounded to nearest whole frame)
+durFrPx = round(1./spdPxFr);
+
+% basis vector for increasing Y position values, starts at 1 b/c index 0 is
+%  for bar only
+incPosBasis = 1:(numYEle);
+% basis vector for decreasing position values
+decPosBasis = numYEle:-1:1;
+% shift decreasing position basis vector to also start at zero
+decPosBasis = circshift(decPosBasis, 1);
+
+% duration in frames
+moveDurFr = round(moveDur * settings.visstim.funcfreq);
+durXOnlyFr = round(durXOnly * settings.visstim.funcfreq);
+staticDurFr = round(staticDur * settings.visstim.funcfreq);
+
+
+% build position sequence, 1X front-to-back, 1X back-to-front
+
+% preallocate
+yFunc = zeros(1, 2 * (moveDurFr + durXOnlyFr + staticDurFr));
+
+% first X only closed loop, no change in Y
+yFunc(1:durXOnlyFr) = yBarInd; % when only X, use Y = 0;
+
+% static grating
+staticStartInd = durXOnlyFr + 1;
+staticEndInd = staticStartInd + staticDurFr - 1;
+% first grating element in Y
+yFunc(staticStartInd:staticEndInd) = incPosBasis(1);
+
+% change in Y: front-to-back
+moveStartInd = staticEndInd + 1;
+moveEndInd = moveStartInd + moveDurFr - 1;
+% sequence for change in Y
+ftbMotion = repelem(incPosBasis, durFrPx);
+% if sequence long enough
+if (length(ftbMotion) >= moveDurFr)
+    % just clip and add to function
+    yFunc(moveStartInd:moveEndInd) = ftbMotion(1:moveDurFr);
+else % otherwise, repeat sequence
+    % figure out number of repeats
+    numSeqReps = ceil(moveDurFr/length(ftbMotion));
+    % generate that vector of sufficient length
+    longSeq = repmat(ftbMotion,1,numSeqReps);
+    yFunc(moveStartInd:moveEndInd) = longSeq(1:moveDurFr);
+end
+
+% second X only closed loop, no change in Y
+XOnlyStartInd = moveEndInd + 1;
+XOnlyEndInd = XOnlyStartInd + durXOnlyFr - 1;
+yFunc(XOnlyStartInd:XOnlyEndInd) = yBarInd;
+
+% static grating
+staticStartInd = XOnlyEndInd + 1;
+staticEndInd = staticStartInd + staticDurFr - 1;
+yFunc(staticStartInd:staticEndInd) = decPosBasis(1);
+
+% change in Y: back-to=front
+moveStartInd = staticEndInd + 1;
+moveEndInd = moveStartInd + moveDurFr - 1;
+% sequence for change in Y
+btfMotion = repelem(decPosBasis, durFrPx);
+% if sequence long enough
+if (length(btfMotion) >= moveDurFr)
+    % just clip and add to function
+    yFunc(moveStartInd:moveEndInd) = btfMotion(1:moveDurFr);
+else % otherwise, repeat sequence
+    % figure out number of repeats
+    numSeqReps = ceil(moveDurFr/length(btfMotion));
+    % generate that vector of sufficient length
+    longSeq = repmat(btfMotion,1,numSeqReps);
+    yFunc(moveStartInd:moveEndInd) = longSeq(1:moveDurFr);
+end
+ 
+% save function
+func = yFunc;
+save([vsFunctionsDir() filesep YFuncName '.mat'], 'func');
+
+
