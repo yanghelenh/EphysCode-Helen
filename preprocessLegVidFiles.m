@@ -28,6 +28,7 @@
 %       functions, preprocessing to run also on leg vid in preExptTrials
 %   7/29/20 - HHY - fix bugs from breaking out separate functions
 %   1/9/21 - HHY - update function description
+%   2/24/21 - HHY - update to ignore case in experiment name
 %
 
 function preprocessLegVidFiles()
@@ -119,7 +120,7 @@ function preprocessLegVidFiles()
                     % only execute leg video processing on trials with leg
                     %  vid; should necessarily be case when rawLegVid 
                     %  folder present
-                    if (contains(inputParams.exptCond, 'leg'))
+                    if (contains(inputParams.exptCond, 'leg', 'IgnoreCase', true))
                     	% generate .mp4 and .zip files for trial
                         zipFfmpegLegVid(inputParams, scriptsPath, ...
                             preExptPath, rawLegVidPath, flyDirs(i).name, ...
@@ -141,7 +142,7 @@ function preprocessLegVidFiles()
                 renameStatus = renameLegVid(rawLegVidPath, scriptsPath, ...
                     flyDirs(i).name, cellDirs(j).name);
                 
-                % if renaming failed, end function here
+%                 if renaming failed, end function here
                 if renameStatus
                     fprintf('Renaming leg vid files failed on %s %s\n', ...
                         flyDirs(i).name, cellDirs(j).name);
@@ -163,7 +164,7 @@ function preprocessLegVidFiles()
                 trialName = trialName(1:(end-4)); % .mat is set 4 characters
                       
                 % only execute leg video processing on trials with leg vid
-                if (contains(inputParams.exptCond, 'leg'))
+                if (contains(inputParams.exptCond, 'leg', 'IgnoreCase', true))
                     
                     % generate .mp4 and .zip files for trial
                     zipFfmpegLegVid(inputParams, scriptsPath, ...
