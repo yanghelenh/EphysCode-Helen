@@ -988,6 +988,9 @@ for i = 1:pattern.y_num
     
 end
 
+% put data in structure
+pattern.Pats = Pats; 	
+
 % convert into appropriate format for panels
 pattern.BitMapIndex = process_panel_map(pattern);
 pattern.data = Make_pattern_vector(pattern);
@@ -1094,6 +1097,9 @@ for i = 1:pattern.y_num
     
 end
 
+% put data in structure
+pattern.Pats = Pats; 	
+
 % convert into appropriate format for panels
 pattern.BitMapIndex = process_panel_map(pattern);
 pattern.data = Make_pattern_vector(pattern);
@@ -1176,6 +1182,9 @@ for i = 1:numHorizLEDs360
     end
 end
 
+% put data in structure
+pattern.Pats = Pats; 	
+
 % convert into appropriate format for panels
 pattern.BitMapIndex = process_panel_map(pattern);
 pattern.data = Make_pattern_vector(pattern);
@@ -1257,6 +1266,9 @@ for i = 1:numHorizLEDs360
         Pats(:,:,i,j) = thisXYPattern;
     end
 end
+
+% put data in structure
+pattern.Pats = Pats; 	
 
 % convert into appropriate format for panels
 pattern.BitMapIndex = process_panel_map(pattern);
@@ -1376,6 +1388,9 @@ for i = 1:numHorizLEDs360
     end
 end
 
+% put data in structure
+pattern.Pats = Pats; 	
+
 % convert into appropriate format for panels
 pattern.BitMapIndex = process_panel_map(pattern);
 pattern.data = Make_pattern_vector(pattern);
@@ -1493,6 +1508,9 @@ for i = 1:numHorizLEDs360
         Pats(:,:,i,j) = thisXYPatternLum;
     end
 end
+
+% put data in structure
+pattern.Pats = Pats; 	
 
 % convert into appropriate format for panels
 pattern.BitMapIndex = process_panel_map(pattern);
