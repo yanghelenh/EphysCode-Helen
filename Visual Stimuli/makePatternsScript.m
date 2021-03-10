@@ -6,7 +6,7 @@
 %
 % UPDATED:
 %   2/14/21 - HHY
-%
+%   3/10/21 - HHY
 
 %% Some constants
 gsVal = 3; % for pattern.gs_val, means 8 possible pixel vlaues
@@ -1350,8 +1350,6 @@ for i = 1:numHorizLEDs360
     % for each X, shift pattern 1 LED to left
     thisXPattern = ShiftMatrix(barPattern, i-1, horizShiftReg,'y');
     
-    figure;
-    
     % loop over all Y, adding in front-to-back shifts
     for j = 2:pattern.y_num
         % shift each half of grating, opposite directions
@@ -1372,10 +1370,6 @@ for i = 1:numHorizLEDs360
         
         % gray out front panels
         thisXYPatternLum(:,grayLEDs) = meanLum;
-        
-        imagesc(thisXYPatternLum);
-        axis('equal');
-        pause(0.05);
 
         % add to Pats
         Pats(:,:,i,j) = thisXYPatternLum;
@@ -1474,8 +1468,6 @@ for i = 1:numHorizLEDs360
     % for each X, shift pattern 1 LED to left
     thisXPattern = ShiftMatrix(barPattern, i-1, horizShiftInv,'y');
     
-    figure;
-    
     % loop over all Y, adding in front-to-back shifts
     for j = 2:pattern.y_num
         % shift each half of grating, opposite directions
@@ -1496,10 +1488,6 @@ for i = 1:numHorizLEDs360
         
         % gray out front panels
         thisXYPatternLum(:,grayLEDs) = meanLum;
-        
-        imagesc(thisXYPatternLum);
-        axis('equal');
-        pause(0.05);
 
         % add to Pats
         Pats(:,:,i,j) = thisXYPatternLum;
