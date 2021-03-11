@@ -14,11 +14,14 @@ function addMyPaths()
     %  Set the paths according to whether we are on the MAC or PC
     if strcmp(comptype, PC_STRING) % WINDOWS path
         % visual panel code
+%         addpath(genpath(...
+%             'C:\Users\WilsonLab\Documents\HelenExperimentalCode\panels-matlab\'));
         addpath(genpath(...
-            'C:\Users\WilsonLab\Documents\HelenExperimentalCode\panels-matlab\'));
+            'C:\Users\WilsonLab\Documents\HelenExperimentalCode\panels\'));
     elseif strcmp(comptype, MAC_STRING) % MACBOOK PRO path
         % visual panel code
-        addpath(genpath('/Users/hyang/Documents/panels-matlab/'));
+%         addpath(genpath('/Users/hyang/Documents/panels-matlab/'));
+        addpath(genpath('/Users/hyang/Documents/panels/'));
     else 
         % if neither computer types throw error
         error('ERROR: computer type not found');
