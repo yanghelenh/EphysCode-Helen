@@ -12,6 +12,7 @@
 %   settings - struct of settings
 %
 % Created: 11/3/19
+%
 % Updated: 
 %   1/21/20 - HHY
 %   7/22/20 - HHY - add zero values for zero current/voltage command from
@@ -19,6 +20,9 @@
 %   2/11/21 - HHY - updates for visual stimulus presentation
 %   2/15/21 - HHY - visual stimuli function frequency, only 1 value (same
 %       for X and Y)
+%   3/10/21 - HHY - visual stimuli function frequency changed to 150 Hz
+%       from 200 Hz b/c 200 Hz gives bug with closed loop 1 channel, open
+%       loop with position function for other channel
 %
 
 function [dataDir, exptFnDir, settings] = ephysSettings()

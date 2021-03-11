@@ -72,7 +72,7 @@ startPos = 0;
 
 % Y indicies for on, off, gray (-1 from patterns indicies, b/c zero
 %  indexing)
-yBarDisp = 0;
+yGratingDisp = 0;
 yMeanLum = 1;
 yAllOff = 2;
 
@@ -176,7 +176,7 @@ end
 
 % generate Y sequence for 1 trial (gray static move) = (gray on on)
 oneYTrial = [(ones(1, barDurFr) * yMeanLum), ...
-    (ones(1, staticDurFr + moveDurFr) * yBarDisp)];
+    (ones(1, staticDurFr + moveDurFr) * yGratingDisp)];
 
 % repeat this for all trials
 yFunc = repmat(oneYTrial, 1, numTrials);
