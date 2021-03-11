@@ -170,8 +170,7 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     settings.visstim.chNumX = 1;
     settings.visstim.chNumY = 2;
     % panels function frequency for X and Y, should be multiple of 50, max
-    %  500; 50, 100, 150, 250 work for closed loop X, open loop Y but not
-    %  200
+    %  500; only 50 Hz works consistently for closed loop X, open loop Y
     settings.visstim.funcfreq = 50;
     
     % modes for different types of control of pattern
