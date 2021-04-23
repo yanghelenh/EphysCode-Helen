@@ -33,6 +33,8 @@
 %   1/8/21 - HHY - prompt user to record number of FicTrac video frames
 %       grabbed through functions run on FicTrac computer
 %   1/9/21 - HHY - fix bugs in handling output channels
+%   4/23/21 - HHY - change leg and FicTrac camera frame rates to settings
+%       variables
 %
 
 function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
@@ -65,14 +67,14 @@ function [rawData, inputParams, rawOutput] = legvidFictracvidEphysIInj(...
     inputParams.exptCond = 'legvidFictracvidEphys'; % name of trial type
     % leg tracking camera frame rate - make sure it's a whole number of
     %  DAQ scans
-    legCamFrameRate = 250; % in Hz
+    legCamFrameRate = settings.leg.frameRate; % in Hz
     legCamFrameRateScans = round(settings.bob.sampRate / legCamFrameRate);
     inputParams.legCamFrameRate = settings.bob.sampRate / ...
         legCamFrameRateScans;
     
     % FicTrac camera frame rate - make sure it's a whole number of DAQ
     %  scans
-    ftCamFrameRate = 150; % in Hz
+    ftCamFrameRate = settings.fictrac.frameRate; % in Hz
     ftCamFrameRateScans = round(settings.bob.sampRate / ftCamFrameRate);
     inputParams.ftCamFrameRate = settings.bob.sampRate / ...
         ftCamFrameRateScans;

@@ -26,6 +26,7 @@
 %       of divided by scan rate); changed leg video frame rate to 225 Hz
 %   9/8/20 - HHY - exptCond was legFictracEphys instead of
 %       legFictracEphysIInj
+%   4/23/21 - HHY - change leg camera frame rate to settings variable
 %
 function [rawData, inputParams, rawOutput] = legFictracEphysIInj(...
     settings, duration)
@@ -57,7 +58,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphysIInj(...
     inputParams.exptCond = 'legFictracEphysIInj'; % name of trial type
     % leg tracking camera frame rate - make sure it's a whole number of
     %  DAQ scans
-    legCamFrameRate = 225; % in Hz
+    legCamFrameRate = settings.leg.frameRate; % in Hz
     legCamFrameRateScans = round(settings.bob.sampRate / legCamFrameRate);
     inputParams.legCamFrameRate = settings.bob.sampRate / ...
         legCamFrameRateScans;

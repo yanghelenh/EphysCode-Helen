@@ -25,6 +25,7 @@
 %   9/3/20 - HHY - fixed startDelay, dataAvailExceeds,
 %       actualExperimentDuration fields of inputParams (multiplied instead
 %       of divided by scan rate); changed leg video frame rate to 225 Hz
+%   4/23/21 - HHY - change leg vid frame rate to settings variable
 %
 
 function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
@@ -57,7 +58,7 @@ function [rawData, inputParams, rawOutput] = legFictracEphys(settings, ...
     inputParams.exptCond = 'legFictracEphys'; % name of trial type
     % leg tracking camera frame rate - make sure it's a whole number of
     %  DAQ scans
-    legCamFrameRate = 250; % in Hz
+    legCamFrameRate = settings.leg.frameRate; % in Hz
     legCamFrameRateScans = round(settings.bob.sampRate / legCamFrameRate);
     inputParams.legCamFrameRate = settings.bob.sampRate / ...
         legCamFrameRateScans;

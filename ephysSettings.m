@@ -23,6 +23,7 @@
 %   3/10/21 - HHY - visual stimuli function frequency changed to 150 Hz
 %       from 200 Hz b/c 200 Hz gives bug with closed loop 1 channel, open
 %       loop with position function for other channel
+%   4/23/21 - HHY - add leg camera frame rate as setting
 %
 
 function [dataDir, exptFnDir, settings] = ephysSettings()
@@ -190,5 +191,11 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     % defaults for X and Y functions, when they're not being used
     settings.visstim.defaultXFunc = 1; % static
     settings.visstim.defaultYFunc = 1; % static
+    
+    % leg camera frame rate
+    settings.leg.frameRate = 250; % frame rate in Hz
+    
+    % FicTrac camera frame rate (when acquiring FicTrac video)
+    settings.fictrac.frameRate = 150; % in Hz
     
 end

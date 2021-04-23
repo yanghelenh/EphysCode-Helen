@@ -20,6 +20,7 @@
 %
 % UPDATED:
 %   2/11/21
+%   4/23/21 - HHY - change leg camera frame rate to settings variable
 %
 function [rawData, inputParams, rawOutput] = visstimLegFictrac(...
     settings, duration)
@@ -51,7 +52,7 @@ function [rawData, inputParams, rawOutput] = visstimLegFictrac(...
     inputParams.exptCond = 'visstimLegFictrac'; % name of trial type
     % leg tracking camera frame rate - make sure it's a whole number of
     %  DAQ scans
-    legCamFrameRate = 250; % in Hz
+    legCamFrameRate = settings.leg.frameRate; % in Hz
     legCamFrameRateScans = round(settings.bob.sampRate / legCamFrameRate);
     inputParams.legCamFrameRate = settings.bob.sampRate / ...
         legCamFrameRateScans;
