@@ -29,6 +29,7 @@
 %   7/29/20 - HHY - fix bugs from breaking out separate functions
 %   1/9/21 - HHY - update function description
 %   2/24/21 - HHY - update to ignore case in experiment name
+%   3/24/22 - HHY - update to have date in video file names as well
 %
 
 function preprocessLegVidFiles()
@@ -123,7 +124,8 @@ function preprocessLegVidFiles()
                     if (contains(inputParams.exptCond, 'leg', 'IgnoreCase', true))
                     	% generate .mp4 and .zip files for trial
                         zipFfmpegLegVid(inputParams, scriptsPath, ...
-                            preExptPath, rawLegVidPath, flyDirs(i).name, ...
+                            preExptPath, rawLegVidPath, dateDirName, ...
+                            flyDirs(i).name, ...
                             cellDirs(j).name, 'cellAttachedTrial');
                     end
                     
@@ -168,8 +170,8 @@ function preprocessLegVidFiles()
                     
                     % generate .mp4 and .zip files for trial
                     zipFfmpegLegVid(inputParams, scriptsPath, ...
-                        cellDirPath, rawLegVidPath, flyDirs(i).name, ...
-                        cellDirs(j).name,trialName);
+                        cellDirPath, rawLegVidPath, dateDirName,...
+                        flyDirs(i).name, cellDirs(j).name,trialName);
                         
                 end
             end
