@@ -24,6 +24,8 @@
 %       from 200 Hz b/c 200 Hz gives bug with closed loop 1 channel, open
 %       loop with position function for other channel
 %   4/23/21 - HHY - add leg camera frame rate as setting
+%   2/20/22 - HHY - remove ScanImage digital I/O channels from output, add
+%       channels to control Hg lamp shutter
 %
 
 function [dataDir, exptFnDir, settings] = ephysSettings()
@@ -77,7 +79,7 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
     % which analog output channels are used (currently, none)
     settings.bob.aOutChUsed = [0:1];
     % which digital output channels are used (notation as above)
-    settings.bob.dOutChUsed = [0 0; 0 1; 0 2; 0 3; 0 4];
+    settings.bob.dOutChUsed = [0 0; 0 3; 0 4];
 
     % to decode which column in raw data output from data acquisition
     %  corresponds to what information; ordered by order channels will be added
@@ -87,13 +89,13 @@ function [dataDir, exptFnDir, settings] = ephysSettings()
         'ficTracHeading', 'ficTracIntX', 'ficTracIntY', 'panelsDAC0X',...
         'panelsDAC1Y'};
     settings.bob.dInChAssign = {'ficTracCamFrames', ...
-        'scanimageFrameClock', 'legCamFrames'};
+        'HgLampShutterSyncOut', 'legCamFrames'};
     settings.bob.inChAssign = [settings.bob.aInChAssign ...
         settings.bob.dInChAssign];
     % output channel assignments (notation like input, above)
     settings.bob.aOutChAssign = {'ampExtCmdIn', 'aOut1'};
-    settings.bob.dOutChAssign = {'scanimageAcqStart', 'scanimageAcqStop',...
-        'scanimageNextFile','legCamFrameStartTrig', 'ficTracCamStartTrig'};
+    settings.bob.dOutChAssign = {'HgLampShutterPulseIn', ...
+        'legCamFrameStartTrig', 'ficTracCamStartTrig'};
     settings.bob.outChAssign = [settings.bob.aOutChAssign ...
         settings.bob.dOutChAssign];
 

@@ -1,6 +1,6 @@
-% vInjDir.m
+% iInjDir.m
 %
-% Quick function that specifies folder where voltage injection protocol
+% Quick function that specifies folder where current injection protocol
 %  functions live.
 % Ideally, would have been part of ephysSettings.m, but too awkward to
 %  change now
