@@ -18,6 +18,8 @@
 %
 % UPDATED:
 %   2/21/22 - HHY - confirmed, works
+%   3/28/22 - HHY - rename stimDurs to allStimDurs to match other opto stim
+%       functions
 %
 
 function [optoStimOut, optoStimParams] = oneStepOpto(settings, ...
@@ -46,7 +48,7 @@ function [optoStimOut, optoStimParams] = oneStepOpto(settings, ...
     %  duration delivered, if rounded)
     optoStimParams.ndFilter = ndFilter;
     optoStimParams.stimBPfilter = stimBPfilter;
-    optoStimParams.stimDur = stepDurScans / settings.bob.sampRate;
+    optoStimParams.allStimDurs = stepDurScans / settings.bob.sampRate;
     optoStimParams.durBwStims = bwDurScans / settings.bob.sampRate;
     
     % generate stimulus
