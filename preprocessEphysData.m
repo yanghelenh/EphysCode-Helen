@@ -10,8 +10,7 @@
 %   daqData - data collected on DAQ, with fields labeled
 %   daqOutput - signal output on DAQ during experiment, with fields labeled
 %   daqTime - timing vector for daqData and daqOutput
-%   inputParams - input parameters from trial function (e.g. ephysRecording)
-%   settings - settings struct from ephysSettings
+%   inputParams - input parameters from trial function (e.g. ephysRecordingfrom ephysSettings
 %
 % OUTPUTS:
 %   ephysData - struct of appropriately scaled ephys data, named fields
