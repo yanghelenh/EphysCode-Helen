@@ -1,5 +1,7 @@
 % multiStepIInj.m
 %
+% DO NOT USE AS OF 1/5/24. NEVER FINISHED WRITING AND DOES NOT WORK
+%
 % Current Injection Function. Injects square current steps of user 
 %  specified amplitudes of user specified durations. Durations can be 
 %  different among steps. Has option to randomize amplitudes or not. User 
@@ -22,6 +24,7 @@
 %
 % UPDATED:
 %   7/24/20 - HHY
+%   1/5/24 - HHY - discovered that this was never finished
 %
 
 function [iInjOut, iInjParams] = multiStepIInj(settings, durScans)
@@ -50,23 +53,21 @@ function [iInjOut, iInjParams] = multiStepIInj(settings, durScans)
         randomize = 'n';
     end
     
-    % get amplitudes of steps to present 
-    allStepAmps = linspace(minStepAmp, maxStepAmp, numSteps);
-    
+   
     % convert user input into correct units for output (amplitude in volts,
     %  duration in scans); compensate for non-zero output from DAQ when
     %  zero commanded
-    allStepAmpsV = (allStepAmps - settings.VOut.zeroI) .* ...
+    allStepAmpsV = (stepAmps - settings.VOut.zeroI) .* ...
         settings.VOut.IConvFactor;
-    stepDurScans = round(stepDur * settings.bob.sampRate);
+    stepDurScans = round(stepDurs .* settings.bob.sampRate);
     spaceAmpV = (spaceAmp - settings.VOut.zeroI) * ...
         settings.VOut.IConvFactor;
     spaceDurScans = round(spaceDur * settings.bob.sampRate);
     
     % save user input into parameters struct (convert duration to actual
     %  duration delivered, if rounded)
-    iInjParams.allStepAmps = allStepAmps;
-    iInjParams.stepDur = stepDurScans / settings.bob.sampRate;
+    iInjParams.allStepAmps = stepAmps;
+    iInjParams.stepDur = stepDurScans ./ settings.bob.sampRate;
     iInjParams.spaceAmp = spaceAmp;
     iInjParams.spaceDur = spaceDurScans / settings.bob.sampRate;
     iInjParams.randomize = randomize;

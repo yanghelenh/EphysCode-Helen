@@ -1,8 +1,9 @@
-% rampVInj.m
+% multiStepVInj.m
 %
 % Voltage Injection Function for visual panels. 
-% Delivers linear voltage ramp between user specified values for user 
-%  specified duration. Repeats until end of trial. 
+% Delivers square voltage step of user-specified amplitudes and duration.
+%  Durations can be different among steps. Steps can be randomized or they
+%  can repeat in the user-specified order until the end of the trial
 % Voltage values are not scaled, as they are not meant to be sent to the
 %  amplifier.
 %
@@ -14,17 +15,17 @@
 %   vInjOut - col vector of current injection output, of length durScans
 %   vInjParams -struct with all user specified parameter values
 %
-% CREATED: 2/11/21 - HHY
+% CREATED: 1/5/24 - HHY
 %
 % UPDATED:
-%   2/11/21 - HHY
+%   1/5/24 - HHY
 %
 
-function [vInjOut, vInjParams] = rampVInj(settings, durScans)
+function [vInjOut, vInjParams] = multiStepVInj(settings, durScans)
 
     % prompt user for input parameters, as dialog box
-    inputParams = {'Start voltage (V):', 'End voltage (V):', ...
-        'Ramp duration (s):'};
+    inputParams = {'Step Amplitudes (V):', 'Step Durations (s):', ...
+        'Randomize steps? y/n'};
     dlgTitle = 'Enter parameter values';
     dlgDims = [1 35]; % dimensions of dialog box input fields
     
@@ -32,12 +33,19 @@ function [vInjOut, vInjParams] = rampVInj(settings, durScans)
     dlgAns = inputdlg(inputParams, dlgTitle, dlgDims);
     
     % convert user input into actual variables
-    startV = str2double(dlgAns{1});
-    endV = str2double(dlgAns{2});
-    rampDur = str2double(dlgAns{3});
+    stepAmps = str2double(dlgAns{1});
+    stepDurs = str2double(dlgAns{2});
+    randomize = dlgAns{3};
     
-    % convert duration to DAQ scans
-    rampDurScans = round(rampDur * settings.bob.sampRate);
+    % standarize randomize; defaults to no if input isn't y or Y
+    if strcmpi(randomize,'y')
+        randomize = 'y';
+    else
+        randomize = 'n';
+    end
+    
+    % convert step durations to DAQ scans
+    stepDurScans = round(stepDurs .* settings.bob.sampRate);
     
     % save user input into parameters struct (convert duration to actual
     %  duration delivered, if rounded)

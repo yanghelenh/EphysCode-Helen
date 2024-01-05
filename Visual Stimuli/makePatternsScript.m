@@ -1,4 +1,4 @@
-\% makePatternsScript.m
+% makePatternsScript.m
 %
 % Script for making all the patterns, ordered in numerical order
 %
