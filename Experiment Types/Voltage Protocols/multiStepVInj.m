@@ -13,12 +13,13 @@
 %
 % OUTPUTS:
 %   vInjOut - col vector of current injection output, of length durScans
-%   vInjParams -struct with all user specified parameter values
+%   vInjParams - struct with all user specified parameter values
 %
 % CREATED: 1/5/24 - HHY
 %
 % UPDATED:
-%   1/5/24 - HHY
+%   1/7/24 - HHY
+%   1/8/24 - HHY - confirmed, works
 %
 
 function [vInjOut, vInjParams] = multiStepVInj(settings, durScans)
@@ -33,40 +34,70 @@ function [vInjOut, vInjParams] = multiStepVInj(settings, durScans)
     dlgAns = inputdlg(inputParams, dlgTitle, dlgDims);
     
     % convert user input into actual variables
-    stepAmps = str2double(dlgAns{1});
-    stepDurs = str2double(dlgAns{2});
+    stepAmps = eval(dlgAns{1});
+    stepDurs = eval(dlgAns{2});
     randomize = dlgAns{3};
     
-    % standarize randomize; defaults to no if input isn't y or Y
+    % convert step durations to DAQ scans
+    stepDursScans = round(stepDurs .* settings.bob.sampRate);
+    
+    % number of different steps
+    numSteps = length(stepAmps);
+    
+    % generate vector of output, approach is different depending on
+    %  whether the sequence is randomized or not
     if strcmpi(randomize,'y')
-        randomize = 'y';
+        randomize = 'y'; % standardize randomize
+        
+        curNumScans = 0; % counter for total number of scans generated
+        vInjOut = []; % initialize output vector
+        
+        % generate output, loops while total number of scans is not reached
+        while (curNumScans < durScans)
+            % get random step index
+            thisStepInd = randi(numSteps);
+            
+            % generate column vector for this step
+            % value is amp, number of elements determined by duration in
+            %  scans
+            thisStepVector = ones(stepDursScans(thisStepInd),1) .* ...
+                stepAmps(thisStepInd);
+            
+            % add this vector to output 
+            vInjOut = [vInjOut; thisStepVector];
+            % update num scans counter
+            curNumScans = curNumScans + length(thisStepVector);
+        end
     else
-        randomize = 'n';
+        randomize = 'n'; % standardize randomize
+        
+        % generate one repeat of all steps, in order they appear in
+        % stepAmps
+        oneRepVector = [];
+        for i = 1:numSteps
+            % column vector for this step
+            thisStepVector = ones(stepDursScans(i),1) .* stepAmps(i);
+            
+            % add to 1 repeat vector
+            oneRepVector = [oneRepVector; thisStepVector];
+        end
+        
+        % repeat vector of all steps 
+        % number of times to repeat vector, always round up so vector isn't
+        %  prematurely cut off
+        numReps = ceil(durScans / length(oneRepVector));
+        
+        vInjOut = repmat(oneRepVector, numReps, 1);
     end
     
-    % convert step durations to DAQ scans
-    stepDurScans = round(stepDurs .* settings.bob.sampRate);
+    % clip end of output vector to match requested number of scans
+    % (happens since steps/reps are added whole)
+    vInjOut = vInjOut(1:durScans);
     
-    % save user input into parameters struct (convert duration to actual
+
+    % save user input into parameters struct (convert durations to actual
     %  duration delivered, if rounded)
-    vInjParams.startV = startV;
-    vInjParams.endV = endV;
-    vInjParams.rampDur = rampDurScans / settings.bob.sampRate;
-    
-    % 1 repeat of ramp
-    oneRamp = linspace(startV, endV, rampDurScans)';
-    
-    % number of full repeats
-    numFullReps = floor(durScans / rampDurScans);
-    
-    % number of scans in remainder
-    numScansLeft = mod(durScans, rampDurScans);
-    
-    % generate output
-    vInjOut = repmat(oneRamp, numFullReps, 1);
-    
-    % if there is a remainder, concatenate onto end
-    if numScansLeft
-        vInjOut = [vInjOut; oneRamp(1:numScansLeft)];
-    end   
+    vInjParams.stepAmps = stepAmps;
+    vInjParams.stepDurs = stepDursScans ./ settings.bob.sampRate;
+    vInjParams.randomize = randomize;   
 end

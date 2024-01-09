@@ -1,7 +1,5 @@
 % multiStepIInj.m
 %
-% DO NOT USE AS OF 1/5/24. NEVER FINISHED WRITING AND DOES NOT WORK
-%
 % Current Injection Function. Injects square current steps of user 
 %  specified amplitudes of user specified durations. Durations can be 
 %  different among steps. Has option to randomize amplitudes or not. User 
@@ -25,6 +23,7 @@
 % UPDATED:
 %   7/24/20 - HHY
 %   1/5/24 - HHY - discovered that this was never finished
+%   1/7/24 - HHY - fixed, probably
 %
 
 function [iInjOut, iInjParams] = multiStepIInj(settings, durScans)
@@ -40,20 +39,15 @@ function [iInjOut, iInjParams] = multiStepIInj(settings, durScans)
     dlgAns = inputdlg(inputParams, dlgTitle, dlgDims);
     
     % convert user input into actual variables
-    stepAmps = str2double(dlgAns{1});
-    stepDurs = str2double(dlgAns{2});
+    stepAmps = eval(dlgAns{1});
+    stepDurs = eval(dlgAns{2});
     spaceAmp = str2double(dlgAns{3});
     spaceDur = str2double(dlgAns{4});
     randomize = dlgAns{5};
     
-    % standarize randomize; defaults to no if input isn't y or Y
-    if strcmpi(randomize,'y')
-        randomize = 'y';
-    else
-        randomize = 'n';
-    end
-    
-   
+    % number of steps
+    numSteps = length(stepAmps);
+     
     % convert user input into correct units for output (amplitude in volts,
     %  duration in scans); compensate for non-zero output from DAQ when
     %  zero commanded
@@ -64,6 +58,60 @@ function [iInjOut, iInjParams] = multiStepIInj(settings, durScans)
         settings.VOut.IConvFactor;
     spaceDurScans = round(spaceDur * settings.bob.sampRate);
     
+    % output vector, for one space
+    spaceOutVector = ones(spaceDurScans,1) .* spaceAmpV;
+          
+    % generate vector of output, approach is different depending on
+    %  whether the sequence is randomized or not
+    if strcmpi(randomize,'y')
+        randomize = 'y'; % standardize
+           
+        curNumScans = 0; % counter for total number of scans generated
+        iInjOut = []; % initialize output vector
+        
+        % generate output, loops while total number of scans is not reached
+        while (curNumScans < durScans)
+            % get random step index
+            thisStepInd = randi(numSteps);
+            
+            % generate column vector for this step
+            % value is amp, number of elements determined by duration in
+            %  scans
+            thisStepVector = ones(stepDurScans(thisStepInd),1) .* ...
+                allStepAmpsV(thisStepInd);
+            
+            % add this vector to output, also, space vector
+            iInjOut = [iInjOut; spaceOutVector; thisStepVector];
+            % update num scans counter
+            curNumScans = curNumScans + length(thisStepVector) + ...
+                length(spaceOutVector);
+        end
+    else
+        randomize = 'n'; % standarize
+        
+        % generate one repeat of all steps, in order they appear in
+        % stepAmps
+        oneRepVector = [];
+        for i = 1:numSteps
+            % column vector for this step
+            thisStepVector = ones(stepDurScans(i),1) .* allStepAmpsV(i);
+            
+            % add to 1 repeat vector, also add space
+            oneRepVector = [oneRepVector; spaceOutVector; thisStepVector];
+        end
+        
+        % repeat vector of all steps 
+        % number of times to repeat vector, always round up so vector isn't
+        %  prematurely cut off
+        numReps = ceil(durScans / length(oneRepVector));
+        
+        iInjOut = repmat(oneRepVector, numReps, 1);
+    end
+    
+    % clip end of output vector to match requested number of scans
+    % (happens since steps/reps are added whole)
+    iInjOut = iInjOut(1:durScans);
+    
     % save user input into parameters struct (convert duration to actual
     %  duration delivered, if rounded)
     iInjParams.allStepAmps = stepAmps;
@@ -71,51 +119,4 @@ function [iInjOut, iInjParams] = multiStepIInj(settings, durScans)
     iInjParams.spaceAmp = spaceAmp;
     iInjParams.spaceDur = spaceDurScans / settings.bob.sampRate;
     iInjParams.randomize = randomize;
-    
-    % each stimulus as a column, in order from min to max; starts with
-    %  space, ends with step
-    spaceMatrix = ones(spaceDurScans, numScans) * spaceAmpV;
-    stepMatrix = ones(stepDurScans, numScans) .* allStepAmpsV;
-    stimMatrix = [spaceMatrix; stepMatrix];
-    
-    % number of full repeats
-    numFullReps = floor(durScans / (spaceDurScans + stepDurScans));
-    
-    % number of scans in remainder
-    numScansLeft = mod(durScans, (spaceDurScans + stepDurScans));
-    
-    % generate stimulus, depends on whether or not to randomize
-    if strcmpi(randomize, 'y')
-        % initialize iInjOut
-        iInjOut = ones(durScans, 1);
-        
-        % generate random order of steps, index numbers into columns
-        stepOrderInd = randi(numSteps, numFullReps+1, 1); 
-       
-        % loop and index into stimMatrix to pull appropriate stimuli
-        for i = 1:numFullReps
-            startInd = 1 + (spaceDurScans + stepDurScans) * (i - 1);
-            endInd = (spaceDurScans + stepDurScans) * i;
-            
-            iInjOut(startInd:endInd) = stimMatrix(:, stepOrderInd(i));        
-        end
-        
-        % if there is a remainder, add in appropriate part of last stimulus
-        if numScansLeft
-            iInjOut((end-numScansLeft+1):end) = ...
-                stimMatrix(1:numScansLeft, stepOrderInd(end));
-        end
-
-    else % in order from min to max
-        % reshape stim matrix to single column vector
-        oneRepStim = reshape(stimMatrix, numel(stimMatrix), 1);
-        
-        % generate output
-        iInjOut = repmat(oneRepStim, numFullReps, 1);
-        
-        % if there is a remainder, concatenate onto end
-        if numScansLeft
-            iInjOut = [iInjOut; oneRepStim(1:numScansLeft)];
-        end  
-    end
 end

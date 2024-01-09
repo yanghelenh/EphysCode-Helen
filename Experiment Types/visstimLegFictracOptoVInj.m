@@ -23,6 +23,7 @@
 %
 % UPDATED:
 %   1/5/24 - HHY - modification of legFictracOpto and visstimVInj
+%   1/8/24 - HHY - confirmed, works
 %
 
 function [rawData, inputParams, rawOutput] = visstimLegFictracOptoVInj(...
@@ -221,10 +222,10 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracOptoVInj(...
 
             % run voltage injection function to get output vector
             try
-                [vInjOutX, vInjParamsX] = vInjFnX(settings, durScans); 
-            catch %errMes
-                % rethrow(errMes);
-                error('Invalid voltage injection function. Ending visstimLegFictracOptoVInj()');
+                [vInjOutX, vInjParamsX] = vInjFnX(settings, maxNumScans); 
+            catch errMes
+                rethrow(errMes);
+                % error('Invalid voltage injection function. Ending visstimLegFictracOptoVInj()');
             end
             
             % record voltage injection name and parameters
@@ -265,7 +266,7 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracOptoVInj(...
 
             % run voltage injection function to get output vector
             try
-                [vInjOutY, vInjParamsY] = vInjFnY(settings, durScans); 
+                [vInjOutY, vInjParamsY] = vInjFnY(settings, maxNumScans); 
             catch %errMes
                 % rethrow(errMes);
                 error('Invalid voltage injection function. Ending visstimVInj()');
@@ -480,7 +481,7 @@ function [rawData, inputParams, rawOutput] = visstimLegFictracOptoVInj(...
     userDAQ.stop();
     % to stop it from presenting non-zero values if optostim
     %  protocol ends on non-zero value
-    userDAQ.outputSingleScan([0, 0]);
+    userDAQ.outputSingleScan(zeros(1,totNumOutCh));
     disp('Acquisition stopped');
     fprintf('End time: %s \n', datestr(now, 'HH:MM:SS'));
     

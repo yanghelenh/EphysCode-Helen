@@ -180,6 +180,8 @@ function [rawData, inputParams, rawOutput] = visstimVInj(settings, ...
     if (~isempty(vInjOut))
         % queue current injection output
         userDAQ.queueOutputData(vInjOut);
+    else
+        userDAQ.DurationInSeconds = duration;
     end
     
     % get time stamp of approximate experiment start
