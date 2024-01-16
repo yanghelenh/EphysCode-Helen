@@ -22,6 +22,7 @@
 % UPDATED:
 %   1/7/24 - HHY
 %   1/8/24 - HHY - confirmed, works
+%   1/10/24 - HHY - split space into before and after ramp
 %
 
 function [vInjOut, vInjParams] = spacedMultiRampVInj(settings, durScans)
@@ -30,7 +31,8 @@ function [vInjOut, vInjParams] = spacedMultiRampVInj(settings, durScans)
     inputParams = {'Ramp(s) start voltage(s) (V):', ...
         'Ramp(s) end voltage(s) (V):', ...
         'Ramp duration(s) (s):', ...
-        'Space voltage (V)', 'Space duration (s)', ...
+        'Before space voltage (V)', 'Before space duration (s)', ...
+        'After space voltage (V)', 'After space duration (s)', ...
         'Randomize ramps? y/n'};
     dlgTitle = 'Enter parameter values';
     dlgDims = [1 35]; % dimensions of dialog box input fields
@@ -42,19 +44,23 @@ function [vInjOut, vInjParams] = spacedMultiRampVInj(settings, durScans)
     startV = eval(dlgAns{1});
     endV = eval(dlgAns{2});
     rampDur = eval(dlgAns{3});
-    spaceV = str2double(dlgAns{4});
-    spaceDur = str2double(dlgAns{5});
-    randomize = dlgAns{6};
+    bfSpaceV = str2double(dlgAns{4});
+    bfSpaceDur = str2double(dlgAns{5});
+    afSpaceV = str2double(dlgAns{6});
+    afSpaceDur = str2double(dlgAns{7});    
+    randomize = dlgAns{8};
     
     % number of different ramps
     numRamps = length(startV);
     
     % convert durations to DAQ scans
     rampDurScans = round(rampDur .* settings.bob.sampRate);
-    spaceDurScans = round(spaceDur * settings.bob.sampRate);
+    bfSpaceDurScans = round(bfSpaceDur * settings.bob.sampRate);
+    afSpaceDurScans = round(afSpaceDur * settings.bob.sampRate);
     
     % space vector
-    oneSpaceVector = ones(spaceDurScans,1) .* spaceV;
+    bfSpaceVector = ones(bfSpaceDurScans,1) .* bfSpaceV;
+    afSpaceVector = ones(afSpaceDurScans,1) .* afSpaceV;
     
     
     % generate vector of output, approach is different depending on
@@ -77,10 +83,10 @@ function [vInjOut, vInjParams] = spacedMultiRampVInj(settings, durScans)
                 rampDurScans(thisRampInd))';
             
             % add this vector to output 
-            vInjOut = [vInjOut; oneSpaceVector; thisRamp];
+            vInjOut = [vInjOut; bfSpaceVector; thisRamp; afSpaceVector];
             % update num scans counter
-            curNumScans = curNumScans + length(oneSpaceVector) + ...
-                length(thisRamp);
+            curNumScans = curNumScans + length(bfSpaceVector) + ...
+                length(thisRamp) + length(afSpaceVector);
         end
     else
         randomize = 'n'; % standardize randomize
@@ -93,7 +99,8 @@ function [vInjOut, vInjParams] = spacedMultiRampVInj(settings, durScans)
             thisRamp = linspace(startV(i), endV(i), rampDurScans(i))';
             
             % add to 1 repeat vector (with space)
-            oneRepVector = [oneRepVector; oneSpaceVector; thisRamp];
+            oneRepVector = [oneRepVector; bfSpaceVector; thisRamp;...
+                afSpaceVector];
         end
         
         % repeat vector of all ramps
@@ -113,7 +120,9 @@ function [vInjOut, vInjParams] = spacedMultiRampVInj(settings, durScans)
     vInjParams.startV = startV;
     vInjParams.endV = endV;
     vInjParams.rampDur = rampDurScans ./ settings.bob.sampRate;
-    vInjParams.spaceV = spaceV;
-    vInjParams.spaceDur = spaceDurScans / settings.bob.sampRate;
+    vInjParams.bfSpaceV = bfSpaceV;
+    vInjParams.bfSpaceDur = bfSpaceDurScans / settings.bob.sampRate;
+    vInjParams.afSpaceV = afSpaceV;
+    vInjParams.afSpaceDur = afSpaceDurScans / settings.bob.sampRate;
     vInjParams.randomize = randomize;
 end

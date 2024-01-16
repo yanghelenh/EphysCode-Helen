@@ -19,6 +19,7 @@
 %
 % UPDATED:
 %   1/8/24 - HHY - confirmed, works
+%   1/16/24 - HHY - add fraction shutter closed to output
 %
 
 function [optoStimOut, optoStimParams] = oneStepOptoWCtr(settings, ...
@@ -55,6 +56,7 @@ function [optoStimOut, optoStimParams] = oneStepOptoWCtr(settings, ...
     optoStimParams.allStimDurs = stepDurScans / settings.bob.sampRate;
     optoStimParams.durBfStims = bfDurScans / settings.bob.sampRate;
     optoStimParams.durAfStims = afDurScans / settings.bob.sampRate;
+    optoStimParams.fracShutterClosed = fracShutterClosed;
     
     % generate stimulus
     % total scans, one repetiton (off before, on, off after)
