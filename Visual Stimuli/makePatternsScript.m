@@ -526,7 +526,7 @@ patternName = 'Pattern_009_4pxLightDarkSquareGrating360Reg';
 stripeWidth = 4; % number of LED dots wide each light/dark stripe is
 
 % indicies for Y options
-yGratingDisp = 1;
+yGratingDisp1 = 1;
 yMeanLum = 2;
 yAllOff = 3;
 
@@ -555,7 +555,7 @@ gratingPattern = repmat(onePeriod, 1, numReps);
 % generate shifted pattern for all X
 for i = 1:numHorizLEDs360
     % shift pattern 1 LED to left
-    Pats(:,:,i,yGratingDisp) = ShiftMatrix(gratingPattern, i-1, ...
+    Pats(:,:,i,yGratingDisp1) = ShiftMatrix(gratingPattern, i-1, ...
         horizShiftReg,'y');
     
 end
@@ -589,7 +589,7 @@ patternName = 'Pattern_010_4pxLightDarkSquareGrating360Inv';
 stripeWidth = 4; % number of LED dots wide each light/dark stripe is
 
 % indicies for Y options
-yGratingDisp = 1;
+yGratingDisp1 = 1;
 yMeanLum = 2;
 yAllOff = 3;
 
@@ -618,7 +618,7 @@ gratingPattern = repmat(onePeriod, 1, numReps);
 % generate shifted pattern for all X
 for i = 1:numHorizLEDs360
     % shift pattern 1 LED to left
-    Pats(:,:,i,yGratingDisp) = ShiftMatrix(gratingPattern, i-1, ...
+    Pats(:,:,i,yGratingDisp1) = ShiftMatrix(gratingPattern, i-1, ...
         horizShiftInv,'y');
     
 end
@@ -1535,7 +1535,7 @@ patternName = 'Pattern_020_6pxLightDarkSquareGrating360Reg';
 stripeWidth = 6; % number of LED dots wide each light/dark stripe is
 
 % indicies for Y options
-yGratingDisp = 1;
+yGratingDisp1 = 1;
 yMeanLum = 2;
 yAllOff = 3;
 
@@ -1564,7 +1564,7 @@ gratingPattern = repmat(onePeriod, 1, numReps);
 % generate shifted pattern for all X
 for i = 1:numHorizLEDs360
     % shift pattern 1 LED to left
-    Pats(:,:,i,yGratingDisp) = ShiftMatrix(gratingPattern, i-1, ...
+    Pats(:,:,i,yGratingDisp1) = ShiftMatrix(gratingPattern, i-1, ...
         horizShiftReg,'y');
     
 end
@@ -1598,7 +1598,7 @@ patternName = 'Pattern_021_8pxLightDarkSquareGrating360Reg';
 stripeWidth = 8; % number of LED dots wide each light/dark stripe is
 
 % indicies for Y options
-yGratingDisp = 1;
+yGratingDisp1 = 1;
 yMeanLum = 2;
 yAllOff = 3;
 
@@ -1627,7 +1627,75 @@ gratingPattern = repmat(onePeriod, 1, numReps);
 % generate shifted pattern for all X
 for i = 1:numHorizLEDs360
     % shift pattern 1 LED to left
-    Pats(:,:,i,yGratingDisp) = ShiftMatrix(gratingPattern, i-1, ...
+    Pats(:,:,i,yGratingDisp1) = ShiftMatrix(gratingPattern, i-1, ...
+        horizShiftReg,'y');
+    
+end
+
+% Set pattern values for other Y options
+Pats(:,:,:,yMeanLum) = meanLum;
+Pats(:,:,:,yAllOff) = darkLum;
+
+% put data in structure
+pattern.Pats = Pats; 		 
+
+% convert into appropriate format for panels
+pattern.BitMapIndex = process_panel_map(pattern);
+pattern.data = Make_pattern_vector(pattern);
+
+% save pattern
+save([vsPatternsDir() filesep patternName '.mat'], 'pattern');
+
+%% Pattern 022: 6 LED wide, light/dark square-wave grating, 360deg arena, 
+%   regular direction, 2 Y values for grating
+%
+% X encodes position of grating
+% Y encodes: 1 - grating displayed, 2 - grating displayed (same as 1), 
+%  2 - all panels mean lum, 3 - all panels dark
+%
+% Last Updated: 1/26/24
+
+% Pattern Name
+patternName = 'Pattern_022_6pxLightDarkSquareGrating360RegSepY';
+
+stripeWidth = 6; % number of LED dots wide each light/dark stripe is
+
+% indicies for Y options
+yGratingDisp1 = 1;
+yGratingDisp2 = 2;
+yMeanLum = 3;
+yAllOff = 4;
+
+% Pattern basic info
+pattern.x_num = numHorizLEDs360; 
+pattern.y_num = 4; % for 4 possible Y values
+
+pattern.num_panels = numHorizPanels360 * numVertPanels;
+pattern.gs_val = gsVal;
+
+% Build Pattern
+
+% initialize array
+Pats = zeros(numVertLEDs, numHorizLEDs360, pattern.x_num, pattern.y_num);
+
+% make grating pattern, start with dark
+% single dark, light stripe pair
+onePeriod = ones(numVertLEDs, 2*stripeWidth);
+onePeriod(:,1:stripeWidth) = darkLum;
+onePeriod(:,(stripeWidth+1):(stripeWidth*2)) = lightLum;
+
+% repeat single period to fill whole arena
+numReps = numHorizLEDs360 / (2*stripeWidth);
+gratingPattern = repmat(onePeriod, 1, numReps);
+
+% generate shifted pattern for all X
+for i = 1:numHorizLEDs360
+    % shift pattern 1 LED to left
+    % grating Y = 1
+    Pats(:,:,i,yGratingDisp1) = ShiftMatrix(gratingPattern, i-1, ...
+        horizShiftReg,'y');
+    % grating Y = 2
+    Pats(:,:,i,yGratingDisp2) = ShiftMatrix(gratingPattern, i-1, ...
         horizShiftReg,'y');
     
 end
